@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <h2>Manage Products</h2>
+    <a th:href="@{/admin/products}">View All Products</a>
+    <form th:action="@{/admin/products/add}" method="post">
+        <input type="text" name="name" placeholder="Product Name" required/>
+        <input type="text" name="description" placeholder="Description" required/>
+        <input type="number" name="price" placeholder="Price" required/>
+        <button type="submit">Add Product</button>
+    </form>
+    <a th:href="@{/}">Back to Home</a>
+</body>
+</html>
