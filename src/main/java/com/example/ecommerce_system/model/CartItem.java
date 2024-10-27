@@ -3,32 +3,22 @@ package com.example.ecommerce_system.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "order_items")
-public class OrderItem {
+@Table(name = "cart_items")
+public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @JoinColumn(name = "shopping_cart_id")
+    private ShoppingCart shoppingCart;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private Product product;
+    private Product product;  // Ensure this matches your Product entity
 
     private int quantity;
-
-    private double price;
-
-    public OrderItem() {}
-
-    public OrderItem(Order order, Product product, int quantity, double price) {
-        this.order = order;
-        this.product = product;
-        this.quantity = quantity;
-        this.price = price;
-    }
+    private double totalPrice; // Ensure this field exists
 
     // Getters and Setters
 
@@ -40,12 +30,12 @@ public class OrderItem {
         this.id = id;
     }
 
-    public Order getOrder() {
-        return order;
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
     }
 
     public Product getProduct() {
@@ -64,11 +54,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
-        return price;
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice; // This method needs to exist
     }
 }

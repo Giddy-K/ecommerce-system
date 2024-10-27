@@ -1,37 +1,38 @@
 package com.example.ecommerce_system.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
+@Table(name = "orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private Date orderDate;
-    private String status;
-    private double total;
+    private LocalDateTime orderDate;
 
     @OneToMany(mappedBy = "order")
-    private Set<OrderItem> orderItems;
+    private List<OrderItem> orderItems;
 
-    // Constructors
+    private double totalAmount;
+
     public Order() {}
 
-    public Order(Customer customer, Date orderDate, String status, double total) {
-        this.customer = customer;
+    public Order(User user, LocalDateTime orderDate, List<OrderItem> orderItems, double totalAmount) {
+        this.user = user;
         this.orderDate = orderDate;
-        this.status = status;
-        this.total = total;
+        this.orderItems = orderItems;
+        this.totalAmount = totalAmount;
     }
 
     // Getters and Setters
+
     public Long getId() {
         return id;
     }
@@ -40,43 +41,35 @@ public class Order {
         this.id = id;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Date getOrderDate() {
+    public LocalDateTime getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public double getTotal() {
-        return total;
-    }
-
-    public void setTotal(double total) {
-        this.total = total;
-    }
-
-    public Set<OrderItem> getOrderItems() {
+    public List<OrderItem> getOrderItems() {
         return orderItems;
     }
 
-    public void setOrderItems(Set<OrderItem> orderItems) {
+    public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

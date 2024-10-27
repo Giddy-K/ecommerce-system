@@ -3,34 +3,38 @@ package com.example.ecommerce_system.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "products")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String description;
     private double price;
     private int stock;
-
+    
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private String image; // URL or path to image
+    private String imageUrl; // Use String to represent the URL of the image
+    private int rating;
 
-    // Constructors
     public Product() {}
 
-    public Product(String name, String description, double price, int stock, Category category, String image) {
+    public Product(String name, String description, double price, int stock, Category category, String imageUrl, int rating) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.category = category;
-        this.image = image;
+        this.imageUrl = imageUrl;
+        this.rating = rating;
     }
 
     // Getters and Setters
+
     public Long getId() {
         return id;
     }
@@ -79,11 +83,19 @@ public class Product {
         this.category = category;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

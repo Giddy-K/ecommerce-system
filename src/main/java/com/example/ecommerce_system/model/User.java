@@ -1,29 +1,34 @@
 package com.example.ecommerce_system.model;
 
 import jakarta.persistence.*;
-import java.util.Set;
+import java.util.Objects;
 
 @Entity
-public class Customer {
+@Table(name = "users")
+public class User {
+    public enum Role {
+        ADMIN, CUSTOMER
+    }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String email;
-    private String address;
     private String password;
+    
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @OneToMany(mappedBy = "customer")
-    private Set<Order> orders;
+    // Constructors, Getters, and Setters
+    public User() {}
 
-    // Constructors
-    public Customer() {}
-
-    public Customer(String name, String email, String address, String password) {
+    public User(String name, String email, String password, Role role) {
         this.name = name;
         this.email = email;
-        this.address = address;
         this.password = password;
+        this.role = role;
     }
 
     // Getters and Setters
@@ -51,14 +56,6 @@ public class Customer {
         this.email = email;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -67,11 +64,25 @@ public class Customer {
         this.password = password;
     }
 
-    public Set<Order> getOrders() {
-        return orders;
+    public Role getRole() {
+        return role;
     }
 
-    public void setOrders(Set<Order> orders) {
-        this.orders = orders;
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    // Override equals and hashCode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

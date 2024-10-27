@@ -5,34 +5,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "shopping_carts")
 public class ShoppingCart {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    private Customer customer;
+    private User customer;
 
-    @ManyToMany
-    @JoinTable(
-        name = "cart_products", 
-        joinColumns = @JoinColumn(name = "cart_id"), 
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "shopping_cart_id")
+    private List<CartItem> items = new ArrayList<>();
 
-    private int quantity;
-
-    // Constructors
     public ShoppingCart() {}
 
-    public ShoppingCart(Customer customer, int quantity) {
+    public ShoppingCart(User customer) {
         this.customer = customer;
-        this.quantity = quantity;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -41,32 +33,31 @@ public class ShoppingCart {
         this.id = id;
     }
 
-    public Customer getCustomer() {
+    public User getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(User customer) {
         this.customer = customer;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public List<CartItem> getItems() {
+        return items;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setItems(List<CartItem> items) {
+        this.items = items;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public void addItem(CartItem item) {
+        items.add(item);
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void removeItem(CartItem item) {
+        items.remove(item);
     }
 
-    // Add a product to the cart
-    public void addProduct(Product product) {
-        this.products.add(product);
+    public double getTotalPrice() {
+        return items.stream().mapToDouble(CartItem::getTotalPrice).sum();
     }
 }

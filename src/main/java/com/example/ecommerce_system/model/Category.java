@@ -1,26 +1,24 @@
 package com.example.ecommerce_system.model;
 
 import jakarta.persistence.*;
-import java.util.Set;
 
 @Entity
+@Table(name = "categories")
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
 
-    @OneToMany(mappedBy = "category")
-    private Set<Product> products;
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, nullable = false)
+    private CategoryType name;
 
-    // Constructors
     public Category() {}
 
-    public Category(String name) {
+    public Category(CategoryType name) {
         this.name = name;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -29,19 +27,11 @@ public class Category {
         this.id = id;
     }
 
-    public String getName() {
+    public CategoryType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(CategoryType name) {
         this.name = name;
-    }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
     }
 }
