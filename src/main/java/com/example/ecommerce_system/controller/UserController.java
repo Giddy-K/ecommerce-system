@@ -39,10 +39,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
+    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password,
+            HttpServletResponse response) {
         try {
             System.out.println("Login attempt for email: " + email);
-            
+
             Optional<User> user = userService.login(email, password);
             if (user.isPresent()) {
                 String token = jwtUtil.generateToken(email);
@@ -52,7 +53,7 @@ public class UserController {
                 response.addCookie(cookie);
                 return ResponseEntity.ok("Login successful: " + user.get().getName());
             }
-    
+
             System.out.println("Invalid credentials for email: " + email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         } catch (Exception e) {
@@ -65,7 +66,7 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long userId) {
         Optional<User> user = userService.getUserById(userId);
         return user.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PutMapping("/{userId}")
@@ -85,34 +86,35 @@ public class UserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-    
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        Optional<User> userOptional = userService.getUserByEmail(email);
-        if (userOptional.isPresent()) {
-            // Generate a reset token (you can use JWT or a simple UUID)
-            String resetToken = UUID.randomUUID().toString();
-            // Save reset token in the database associated with the user (implement this in UserService)
-            userService.saveResetToken(userOptional.get(), resetToken); // You need to implement this method
-
-            // Send email with the reset link
-            String resetLink = "http://localhost:8080/api/users/reset-password?token=" + resetToken;
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Password Reset Request");
-            message.setText("To reset your password, click the link below:\n" + resetLink);
-            mailSender.send(message);
-    
-            return ResponseEntity.ok("Password reset link sent to your email.");
+        try {
+            Optional<User> userOptional = userService.getUserByEmail(email);
+            if (userOptional.isPresent()) {
+                String resetToken = UUID.randomUUID().toString();
+                userService.saveResetToken(userOptional.get(), resetToken); // Ensure this method is implemented correctly
+                String resetLink = "http://localhost:8080/api/users/reset-password?token=" + resetToken;
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(email);
+                message.setSubject("Password Reset Request");
+                message.setText("To reset your password, click the link below:\n" + resetLink);
+                mailSender.send(message);
+                return ResponseEntity.ok("Password reset link sent to your email.");
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+        } catch (Exception e) {
+            // Log the exception for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the password reset process.");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
-    }
+    }    
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
-        Long userId = userService.getUserIdByResetToken(token); // Implement this method in UserService
+        Long userId = userService.getUserIdByResetToken(token);
         if (userId != null) {
-            userService.updatePassword(userId, hashPassword(newPassword)); // Implement hashPassword method
+            userService.updatePassword(userId, newPassword); // Call updatePassword directly
             return ResponseEntity.ok("Password reset successful");
         }
         return ResponseEntity.badRequest().body("Invalid or expired reset token");

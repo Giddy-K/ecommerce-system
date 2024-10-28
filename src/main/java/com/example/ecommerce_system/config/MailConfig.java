@@ -11,7 +11,7 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.example.com"); // Change to your SMTP host
+        mailSender.setHost("smtp.gmail.com"); // Change to your SMTP host
         mailSender.setPort(587); // Change to your SMTP port
 
         mailSender.setUsername("u.anonymous533333@gmail.com.com"); // Your email
