@@ -35,8 +35,9 @@ public class UserService {
     }
 
     public User signup(User user) {
-        user.setPassword(hashPassword(user.getPassword()));
-        return userRepository.save(user);
+        user.setRole(User.Role.CUSTOMER); // Automatically assign the CUSTOMER role
+        user.setPassword(hashPassword(user.getPassword())); // Hash the password
+        return userRepository.save(user); // Save the user
     }
 
     public Optional<User> login(String email, String password) {
@@ -52,6 +53,8 @@ public class UserService {
 
     public void updateUser(Long userId, User user) {
         user.setId(userId);
+        user.setRole(User.Role.CUSTOMER); // Automatically assign the CUSTOMER role
+        user.setPassword(hashPassword(user.getPassword())); // Hash the password
         userRepository.save(user);
     }
 

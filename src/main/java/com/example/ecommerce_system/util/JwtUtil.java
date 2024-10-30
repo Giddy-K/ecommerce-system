@@ -18,9 +18,15 @@ public class JwtUtil {
     private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Secure 256-bit key
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
+    // Original token generation method
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, email);
+    }
+
+    // New method to generate a token with additional claims
+    public String generateTokenWithClaims(String email, Map<String, Object> additionalClaims) {
+        return createToken(additionalClaims, email);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
