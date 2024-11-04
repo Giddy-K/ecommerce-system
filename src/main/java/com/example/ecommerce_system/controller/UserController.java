@@ -4,9 +4,7 @@ import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.UserService;
 import com.example.ecommerce_system.util.JwtUtil;
 
-import jakarta.mail.internet.MimeMessage; // For sending emails if needed
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,7 @@ import java.util.UUID; // For generating reset tokens
 @RequestMapping("/api/users")
 public class UserController {
     @Autowired
-    private UserService userService;
+    private UserService userService; 
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -41,17 +39,17 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password,
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials,
             HttpServletResponse response) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+
         try {
             System.out.println("Login attempt for email: " + email);
-            // logger.info("Login attempt for email: {}", email);
-
-            // Authenticate user
             Optional<User> user = userService.login(email, password);
             if (user.isPresent()) {
                 // Generate token with claims
-                String token = jwtUtil.generateTokenWithClaims(email, Map.of("role", user.get().getRole()));
+                String token = jwtUtil.generateTokenWithClaims(email, Map.of("role", user.get().getRole(), "name", user.get().getName()));
 
                 // Set JWT as a secure HttpOnly cookie with SameSite attribute
                 Cookie cookie = new Cookie("JWT", token);
@@ -61,23 +59,19 @@ public class UserController {
                 cookie.setPath("/");
                 response.addCookie(cookie);
 
-                // Add JWT to Authorization header
-                response.setHeader("Authorization", "Bearer " + token);
-
                 // Prepare JSON response
                 Map<String, String> responseBody = new HashMap<>();
                 responseBody.put("message", "Login successful");
                 responseBody.put("username", user.get().getName());
+                responseBody.put("token", token); // Return the token
+                responseBody.put("role", user.get().getRole().toString()); // Include user role
                 return ResponseEntity.ok(responseBody);
             }
 
-            // Log failed attempt with generic message
             System.out.println("Invalid login attempt for email: " + email);
-            // logger.warn("Invalid login attempt for email: {}", email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         } catch (Exception e) {
-            System.out.println("An error occurred during login for email: {}" + email + e);
-            // logger.error("An error occurred during login for email: {}", email, e);
+            System.out.println("An error occurred during login for email: " + email + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during login.");
         }
     }
@@ -182,8 +176,4 @@ public class UserController {
         return user.isPresent() && user.get().getRole() == User.Role.ADMIN;
     }
 
-    private String hashPassword(String password) {
-        // Implement password hashing logic, e.g., using BCryptPasswordEncoder
-        return password; // Replace with actual hashed password
-    }
 }

@@ -1,7 +1,11 @@
 package com.example.ecommerce_system.service;
 
 import com.example.ecommerce_system.model.Order;
+import com.example.ecommerce_system.model.OrderItem;
+import com.example.ecommerce_system.model.Product;
 import com.example.ecommerce_system.repository.OrderRepository;
+import com.example.ecommerce_system.repository.ProductRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +17,15 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     public Order createOrder(Order order) {
+        for (OrderItem item : order.getItems()) {
+            Product product = productRepository.findById(item.getProduct().getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            item.setPrice(product.getPrice());
+        }
         return orderRepository.save(order);
     }
 
@@ -22,7 +34,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
+        return orderRepository.findAllByUser(user);
     }
 
     public List<Order> getAllOrders() {

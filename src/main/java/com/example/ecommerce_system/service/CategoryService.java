@@ -1,6 +1,7 @@
 package com.example.ecommerce_system.service;
 
 import com.example.ecommerce_system.model.Category;
+import com.example.ecommerce_system.model.CategoryType;
 import com.example.ecommerce_system.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,9 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    public Optional<Category> findByName(CategoryType name) {
+        return categoryRepository.findByName(name);
     }
 }

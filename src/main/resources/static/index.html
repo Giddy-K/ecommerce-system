@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>E-commerce System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+        }
+        .product-image {
+            height: 150px;
+            width: 150px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="welcomeMessage">Welcome to the E-commerce System</h1>
+        <div id="authButtons" class="mb-3">
+            <a id="loginButton" href="login.html" class="btn btn-secondary">Login</a>
+            <a id="signupButton" href="signup.html" class="btn btn-secondary">Signup</a>
+            <a id="logoutButton" class="btn btn-danger d-none">Logout</a>
+        </div>
+        <div id="productList" class="row"></div>
+    </div>
+
+    <script>
+        async function fetchProducts() {
+            const response = await fetch('/api/products');
+            if (response.ok) {
+                const products = await response.json();
+                const productList = document.getElementById('productList');
+                productList.innerHTML = '';
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'col-md-3';
+                    productCard.innerHTML = `
+                        <div class="product-card">
+                            <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                            <h5>${product.name}</h5>
+                            <p>${product.description}</p>
+                            <p>Price: $${product.price.toFixed(2)}</p>
+                        </div>
+                    `;
+                    productList.appendChild(productCard);
+                });
+            }
+        }
+
+        function checkUserAuth() {
+            const token = document.cookie.split('; ').find(row => row.startsWith('JWT='));
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const loginButton = document.getElementById('loginButton');
+            const signupButton = document.getElementById('signupButton');
+            const logoutButton = document.getElementById('logoutButton');
+        
+            if (token) {
+                const user = JSON.parse(atob(token.split('=')[1].split('.')[1])); // Decode JWT payload
+                welcomeMessage.innerText = `Welcome, ${user.name}`; // Use the correct property to display user's name
+                loginButton.classList.add('d-none');
+                signupButton.classList.add('d-none');
+                logoutButton.classList.remove('d-none');
+            } else {
+                welcomeMessage.innerText = 'Welcome to the E-commerce System'; // Reset welcome message
+                loginButton.classList.remove('d-none');
+                signupButton.classList.remove('d-none');
+                logoutButton.classList.add('d-none');
+            }
+        }
+
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include' // Important to include cookies with requests
+            });
+        
+            if (response.ok) {
+                document.cookie = 'JWT=; Max-Age=0; Path=/; HttpOnly;'; // Clear the JWT cookie
+                window.location.reload(); // Reload the page to reset UI
+            }
+        });        
+
+        window.onload = () => {
+            fetchProducts();
+            checkUserAuth();
+        };
+    </script>
+</body>
+</html>

@@ -1,8 +1,6 @@
 package com.example.ecommerce_system.controller;
 
-import com.example.ecommerce_system.model.CartItem;
 import com.example.ecommerce_system.model.ShoppingCart;
-import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

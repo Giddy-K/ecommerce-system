@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <div id="message" class="mt-3"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+        
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password }) // Send email and password as JSON
+            });
+        
+            if (response.ok) {
+                const { username, token } = await response.json(); // Assuming the response contains the username and token
+                document.cookie = `JWT=${token}; Path=/; HttpOnly;`; // Store token in cookie
+                
+                // Decode JWT token to get user role
+                const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+                if (user.role === 'ADMIN') {
+                    window.location.href = "admin.html"; // Redirect to admin page
+                } else {
+                    window.location.href = "index.html"; // Redirect to index page
+                }
+            } else {
+                const error = await response.text();
+                document.getElementById('message').textContent = `Error: ${error}`;
+            }
+        });        
+    </script>
+</body>
+</html>

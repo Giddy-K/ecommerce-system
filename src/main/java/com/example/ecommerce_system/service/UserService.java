@@ -65,6 +65,7 @@ public class UserService {
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
+    
 
     public void saveResetToken(User user, String resetToken) {
         // Save the reset token along with the user's ID in a suitable way

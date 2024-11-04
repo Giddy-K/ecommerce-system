@@ -2,8 +2,9 @@ package com.example.ecommerce_system.model;
 
 public enum CategoryType {
     ELECTRONICS,
-    FASHION,
-    HOME,
+    CLOTHING,
+    HOME_APPLIANCES,
     TOYS,
-    BOOKS
+    BOOKS,
+    GROCERIES
 }
