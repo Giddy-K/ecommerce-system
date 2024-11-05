@@ -1,7 +1,14 @@
 package com.example.ecommerce_system.service;
 
+import com.example.ecommerce_system.dto.OrderRequest;
+import com.example.ecommerce_system.model.Order;
+import com.example.ecommerce_system.model.OrderItem;
 import com.example.ecommerce_system.model.User;
+import com.example.ecommerce_system.repository.OrderRepository;
+import com.example.ecommerce_system.repository.ProductRepository;
 import com.example.ecommerce_system.repository.UserRepository;
+import com.example.ecommerce_system.util.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +18,21 @@ import java.util.HashMap; // Add this import
 import java.util.List;
 import java.util.Map; // Add this import
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private OrderRepository orderRepository; // To manage user orders
+
+    @Autowired
+    private ProductRepository productRepository;
 
     // Use a HashMap to store reset tokens and associated user IDs
     private final Map<String, Long> resetTokens = new HashMap<>();
@@ -65,7 +82,6 @@ public class UserService {
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
-    
 
     public void saveResetToken(User user, String resetToken) {
         // Save the reset token along with the user's ID in a suitable way
@@ -91,5 +107,41 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public Optional<User> getUserFromToken(String token) {
+        String email = jwtUtil.extractEmail(token.substring(7)); // Remove "Bearer " prefix
+        return userRepository.findByEmail(email);
+    }
+
+    public void addToCart(User user, Long productId) {
+        user.getCart().add(productId); // Assuming cart is a List<Long> in User model
+        userRepository.save(user);
+    }
+
+    public void removeFromCart(User user, Long productId) {
+        user.getCart().remove(productId); // Assuming cart is a List<Long> in User model
+        userRepository.save(user);
+    }
+
+    public List<Order> getUserOrders(Long userId) {
+        return orderRepository.findByUserId(userId); // Assuming Order has a userId field
+    }
+
+    public Order placeOrder(User user, OrderRequest orderRequest) {
+        Order order = new Order();
+        order.setUser(user);
+
+        // Assuming each entry in productQuantities is a product ID and quantity
+        List<OrderItem> items = orderRequest.getProductQuantities().entrySet().stream()
+                .map(entry -> {
+                    OrderItem item = new OrderItem();
+                    item.setProduct(productRepository.findById(entry.getKey()).orElse(null));
+                    item.setQuantity(entry.getValue());
+                    return item;
+                }).collect(Collectors.toList());
+
+        order.setOrderItems(items);
+        return orderRepository.save(order);
     }
 }

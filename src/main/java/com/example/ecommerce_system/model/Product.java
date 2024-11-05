@@ -1,7 +1,6 @@
 package com.example.ecommerce_system.model;
 
 import java.util.List;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -17,13 +16,13 @@ public class Product {
     private int stock;
     private String category;
     private String imageUrl;
-    
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Rating> ratings;
 
     public Product() {}
 
-    public Product(String name, String description, double price, int stock, String category, String imageUrl, Rating ratings) {
+    public Product(String name, String description, double price, int stock, String category, String imageUrl, List<Rating> ratings) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -91,11 +90,11 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public Rating getRating() {
+    public List<Rating> getRatings() {
         return ratings;
     }
 
-    public void setRating(Rating rating) {
-        this.ratings = rating;
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
     }
 }

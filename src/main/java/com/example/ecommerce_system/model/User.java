@@ -26,6 +26,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
 
+    @ElementCollection
+    private List<Long> cart; // Store product IDs in the cart
+
     // Constructors, Getters, and Setters
     public User() {}
 
@@ -75,6 +78,22 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public List<Long> getCart() {
+        return cart;
+    }
+
+    public void setCart(List<Long> cart) {
+        this.cart = cart;
     }
 
     // Override equals and hashCode

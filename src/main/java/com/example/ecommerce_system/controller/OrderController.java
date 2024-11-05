@@ -1,6 +1,7 @@
 package com.example.ecommerce_system.controller;
 
 import com.example.ecommerce_system.model.Order;
+import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.OrderService;
 import com.example.ecommerce_system.service.UserService;
 
@@ -36,10 +37,11 @@ public class OrderController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
-        return userService.getUserById(userId)
-                .map(user -> ResponseEntity.ok(orderService.getOrdersByUser(user)))
-                .orElse(ResponseEntity.notFound().build());
+        Optional<User> user = userService.getUserById(userId); // Ensure this returns Optional<User>
+        return user.map(u -> ResponseEntity.ok(orderService.getOrdersByUserId(u.getId()))) // Pass user ID
+                    .orElse(ResponseEntity.notFound().build());
     }
+    
 
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {

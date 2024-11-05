@@ -21,7 +21,7 @@ public class OrderService {
     private ProductRepository productRepository;
 
     public Order createOrder(Order order) {
-        for (OrderItem item : order.getItems()) {
+        for (OrderItem item : order.getOrderItems()) {
             Product product = productRepository.findById(item.getProduct().getId())
                     .orElseThrow(() -> new RuntimeException("Product not found"));
             item.setPrice(product.getPrice());
@@ -34,7 +34,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUserId(Long userId) {
-        return orderRepository.findAllByUser(user);
+        return orderRepository.findByUserId(userId);
     }
 
     public List<Order> getAllOrders() {

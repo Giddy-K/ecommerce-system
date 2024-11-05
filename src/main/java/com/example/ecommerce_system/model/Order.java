@@ -24,15 +24,22 @@ public class Order {
     private String address;
     private Integer status = 0;
 
-    public Order() {}
+    public Order() {
+    }
 
-    public Order(User user, LocalDateTime orderDate, List<OrderItem> orderItems, double totalAmount, String address, Integer status) {
+    public Order(User user, LocalDateTime orderDate, List<OrderItem> orderItems, double totalAmount, String address,
+            Integer status) {
         this.user = user;
         this.orderDate = orderDate;
         this.orderItems = orderItems;
         this.totalAmount = totalAmount;
         this.address = address;
         this.status = status;
+
+        // Set the order reference in OrderItems
+        for (OrderItem orderItem : orderItems) {
+            orderItem.setOrder(this);
+        }
     }
 
     // Getters and Setters
@@ -94,42 +101,42 @@ public class Order {
     }
 }
 
-@Entity
-@Table(name = "order_items")
-class OrderItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+// @Entity
+// @Table(name = "order_items")
+// class OrderItem {
+// @Id
+// @GeneratedValue(strategy = GenerationType.IDENTITY)
+// private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+// @ManyToOne
+// @JoinColumn(name = "product_id", nullable = false)
+// private Product product;
 
-    private Integer quantity;
-    private Double price;
+// private Integer quantity;
+// private Double price;
 
-    public OrderItem() {}
+// public OrderItem() {}
 
-    public OrderItem(Integer quantity, Double price) {
-        this.quantity = quantity;
-        this.price = price;
-    }
+// public OrderItem(Integer quantity, Double price) {
+// this.quantity = quantity;
+// this.price = price;
+// }
 
-    // Getters and Setters
+// // Getters and Setters
 
-    public Integer getQuantity() {
-        return quantity;
-    }
+// public Integer getQuantity() {
+// return quantity;
+// }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+// public void setQuantity(Integer quantity) {
+// this.quantity = quantity;
+// }
 
-    public Double getPrice() {
-        return price;
-    }
+// public Double getPrice() {
+// return price;
+// }
 
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-}
+// public void setPrice(Double price) {
+// this.price = price;
+// }
+// }
