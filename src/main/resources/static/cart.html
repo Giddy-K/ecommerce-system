@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Your Cart</h2>
+        <div id="cartList" class="row"></div>
+        <button onclick="checkout()" class="btn btn-success">Checkout</button>
+    </div>
+
+    <script>
+        async function fetchCart() {
+            const response = await fetch('/api/users/cart', {
+                headers: {
+                    Authorization: `Bearer ${document.cookie.split('=')[1]}`
+                }
+            });
+            if (response.ok) {
+                const cartItems = await response.json();
+                const cartList = document.getElementById('cartList');
+                cartList.innerHTML = '';
+                cartItems.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'col-md-4';
+                    cartItem.innerHTML = `
+                        <div class="cart-item">
+                            <h5>${item.product.name}</h5>
+                            <p>Price: $${item.product.price}</p>
+                            <p>Quantity: ${item.quantity}</p>
+                            <button onclick="removeFromCart(${item.product.id})" class="btn btn-danger">Remove</button>
+                        </div>
+                    `;
+                    cartList.appendChild(cartItem);
+                });
+            }
+        }
+
+        async function removeFromCart(productId) {
+            const response = await fetch(`/api/users/remove-from-cart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+            });
+            if (response.ok) {
+                fetchCart(); // Refresh cart items
+            }
+        }
+
+        async function checkout() {
+            // Implement checkout logic here
+            alert("Checkout functionality coming soon!");
+        }
+
+        window.onload = fetchCart;
+    </script>
+</body>
+</html>

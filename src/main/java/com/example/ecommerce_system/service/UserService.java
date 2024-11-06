@@ -114,6 +114,12 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Long extractUserId(String token) {
+        String email = jwtUtil.extractEmail(token);
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.map(User::getId).orElse(null);
+    }
+
     public void addToCart(User user, Long productId) {
         user.getCart().add(productId); // Assuming cart is a List<Long> in User model
         userRepository.save(user);

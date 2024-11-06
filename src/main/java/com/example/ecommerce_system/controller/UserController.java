@@ -7,6 +7,7 @@ import com.example.ecommerce_system.service.UserService;
 import com.example.ecommerce_system.util.JwtUtil;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,16 +125,20 @@ public class UserController {
         return ResponseEntity.ok("Logout successful");
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable Long userId,
-            @RequestHeader("Authorization") String token) {
+    // @GetMapping("/{userId}")
+    // public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+    // Optional<User> user = userService.getUserById(userId);
+    // return user.map(ResponseEntity::ok)
+    // .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    // }
 
-        if (isUserAdmin(token)) {
-            Optional<User> user = userService.getUserById(userId);
-            return user.map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Admin access required.");
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+        // Assuming the token service can extract userId from the token
+        Long userId = userService.extractUserId(token.replace("Bearer ", ""));
+        Optional<User> user = userService.getUserById(userId);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PutMapping("/{userId}")
@@ -176,7 +181,11 @@ public class UserController {
 
     @GetMapping("/admin")
     public boolean isUserAdmin(String token) {
-        String email = jwtUtil.extractEmail(token.substring(7)); // Remove "Bearer " prefix
+        // Remove "Bearer " prefix if present
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String email = jwtUtil.extractEmail(token);
         Optional<User> user = userService.getUserByEmail(email);
         return user.isPresent() && user.get().getRole() == User.Role.ADMIN;
     }
@@ -191,7 +200,7 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
     }
-
+    
     @DeleteMapping("/remove-from-cart/{productId}")
     public ResponseEntity<?> removeFromCart(@PathVariable Long productId,
             @RequestHeader("Authorization") String token) {

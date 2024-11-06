@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Manage Orders</h2>
+
+        <div id="orderList" class="row"></div>
+    </div>
+
+    <script>
+        // Fetch and display orders
+        async function fetchOrders() {
+            const response = await fetch('/api/users/orders/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('JWT') // Use stored JWT for authentication
+                }
+            });
+            if (response.ok) {
+                const orders = await response.json();
+                const orderList = document.getElementById('orderList');
+                orderList.innerHTML = '';
+                orders.forEach(order => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'col-md-4';
+                    orderCard.innerHTML = `
+                        <div class="order-card">
+                            <h5>Order ID: ${order.id}</h5>
+                            <p>Status: ${order.status}</p>
+                            <p>Order Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+                            <p>Total: $${order.totalAmount}</p>
+                        </div>
+                    `;
+                    orderList.appendChild(orderCard);
+                });
+            } else {
+                alert('Error fetching orders');
+            }
+        }
+
+        window.onload = fetchOrders; // Fetch orders on page load
+    </script>
+</body>
+</html>

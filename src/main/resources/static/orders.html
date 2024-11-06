@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>My Orders</h2>
+        <table class="table table-striped" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="orderList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch user's orders
+        async function fetchOrders() {
+            const token = document.cookie.split('=')[1];
+            const response = await fetch('/api/orders', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const orders = await response.json();
+                const orderList = document.getElementById('orderList');
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${order.id}</td>
+                        <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                        <td>${order.status}</td>
+                        <td>$${order.totalAmount}</td>
+                        <td><a href="order-details.html?id=${order.id}" class="btn btn-info">View</a></td>
+                    `;
+                    orderList.appendChild(row);
+                });
+            }
+        }
+
+        window.onload = fetchOrders;
+    </script>
+</body>
+</html>

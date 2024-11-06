@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Order Details</h2>
+        <div id="orderDetails"></div>
+    </div>
+
+    <script>
+        // Fetch order details
+        async function fetchOrderDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+            const response = await fetch(`/api/orders/${orderId}`);
+            if (response.ok) {
+                const order = await response.json();
+                const orderDetailsDiv = document.getElementById('orderDetails');
+                orderDetailsDiv.innerHTML = `
+                    <h3>Order ID: ${order.id}</h3>
+                    <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+                    <p><strong>Status:</strong> ${order.status}</p>
+                    <h4>Order Items</h4>
+                    <ul>
+                        ${order.items.map(item => `
+                            <li>${item.product.name} - ${item.quantity} x $${item.price}</li>
+                        `).join('')}
+                    </ul>
+                    <p><strong>Total:</strong> $${order.totalAmount}</p>
+                `;
+            }
+        }
+
+        window.onload = fetchOrderDetails;
+    </script>
+</body>
+</html>

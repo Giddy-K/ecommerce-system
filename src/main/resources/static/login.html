@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
@@ -22,35 +24,72 @@
     </div>
 
     <script>
+        // Function to decode JWT token
+        function decodeToken(token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+                const isTokenExpired = Date.now() >= payload.exp * 1000; // Check if expired
+                return isTokenExpired ? null : payload; // Return decoded payload if not expired
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                return null;
+            }
+        }
+
+        // Login form submission handler
         document.getElementById('loginForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-        
+
             const response = await fetch('/api/users/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password }) // Send email and password as JSON
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
             });
-        
+
             if (response.ok) {
-                const { username, token } = await response.json(); // Assuming the response contains the username and token
-                document.cookie = `JWT=${token}; Path=/; HttpOnly;`; // Store token in cookie
-                
-                // Decode JWT token to get user role
-                const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-                if (user.role === 'ADMIN') {
-                    window.location.href = "admin.html"; // Redirect to admin page
-                } else {
-                    window.location.href = "index.html"; // Redirect to index page
+                const { token } = await response.json();
+                // Store the token as a cookie
+                document.cookie = `token=${token}; path=/`;
+
+                // Optionally, store token in localStorage for easier access across pages
+                localStorage.setItem('jwtToken', token);
+
+                // Decode JWT token to check the user role
+                const decodedToken = decodeToken(token);
+                if (decodedToken) {
+                    if (decodedToken.role === 'ADMIN') {
+                        window.location.href = 'admin.html'; // Redirect to admin page
+                    } else {
+                        window.location.href = 'dashboard.html'; // Redirect to user dashboard
+                    }
                 }
             } else {
                 const error = await response.text();
                 document.getElementById('message').textContent = `Error: ${error}`;
             }
-        });        
+        });
+
+        // Function to check if the token is still valid and redirect if necessary
+        function checkUserAuth() {
+            const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+            if (token) {
+                const decodedToken = decodeToken(token.split('=')[1]);
+                if (decodedToken) {
+                    if (decodedToken.role === 'ADMIN') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    console.log('Token expired or invalid');
+                }
+            }
+        }
+
+        // Initial authentication check to redirect if already logged in
+        checkUserAuth();
     </script>
 </body>
 </html>

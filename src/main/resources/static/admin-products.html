@@ -1,20 +1,17 @@
-<!-- <!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Admin Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Admin Dashboard</h2>
-
-        <div id="authButtons" class="mb-3">
-            <a id="logoutButton" class="btn btn-danger">Logout</a>
-        </div>
-
-        <h3>Products</h3>
-        <div id="productList" class="row"></div>
+        <h2>Manage Products</h2>
         
+        <div id="productList" class="row"></div>
+
         <h3>Add New Product</h3>
         <form id="productForm">
             <div class="form-group">
@@ -39,14 +36,14 @@
             </div>
             <div class="form-group">
                 <label for="productCategory">Category:</label>
-                <input type="text" class="form-control" id="productCategory" required></input>
+                <input type="text" class="form-control" id="productCategory" required>
             </div>
             <button type="submit" class="btn btn-primary">Add Product</button>
         </form>
-        
     </div>
 
     <script>
+        // Fetch and display products
         async function fetchProducts() {
             const response = await fetch('/api/products');
             if (response.ok) {
@@ -69,13 +66,15 @@
             }
         }
 
+        // Delete product
         async function deleteProduct(productId) {
-            await fetch(`/api/products/${productId}`, {
+            const response = await fetch(`/api/products/${productId}`, {
                 method: 'DELETE'
             });
             fetchProducts(); // Refresh product list
         }
 
+        // Handle form submission for adding a new product
         document.getElementById('productForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const name = document.getElementById('productName').value;
@@ -84,26 +83,25 @@
             const stock = parseInt(document.getElementById('productStock').value);
             const imageUrl = document.getElementById('productImage').value;
             const category = document.getElementById('productCategory').value;
-        
+
             const productData = {
                 name,
                 description,
                 price,
                 stock,
                 imageUrl,
-                category,
-                rating: 0
+                category
             };
-        
+
             try {
                 const response = await fetch('/api/products', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(productData) // Use the productData object directly
+                    body: JSON.stringify(productData)
                 });
-        
+
                 if (response.ok) {
                     fetchProducts(); // Refresh product list
                     document.getElementById('productForm').reset();
@@ -116,86 +114,8 @@
             }
         });
 
-        document.getElementById('logoutButton').addEventListener('click', async () => {
-            const response = await fetch('/api/users/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-        
-            if (response.ok) {
-                document.cookie = 'JWT=; Max-Age=0; Path=/; HttpOnly;';
-                window.location.href = "index.html";
-            }
-        });
-
-        window.onload = () => {
-            fetchCategories(); // Populate category dropdown on load
-            fetchProducts();   // Populate product list on load
-        };
-    </script>
-</body>
-</html> -->
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Admin Dashboard</h2>
-        <ul>
-            <li><a href="admin-products.html" class="btn btn-primary">Manage Products</a></li>
-            <li><a href="admin-orders.html" class="btn btn-primary">Manage Orders</a></li>
-        </ul>
-        
-        <div id="authButtons" class="mb-3">
-            <button id="logoutButton" class="btn btn-danger">Logout</button>
-        </div>
-    </div>
-
-    <script>
-        // Function to clear the cookie (JWT) from the browser
-    function clearJWT() {
-        document.cookie = 'JWT=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-    }
-
-    // Logout functionality
-    document.getElementById('logoutButton').addEventListener('click', async () => {
-        try {
-            // Send POST request to backend for logout
-            const response = await fetch('api/users/logout', {
-                method: 'POST',
-                credentials: 'include',  // Include cookies if the session is on the same domain
-            });
-    
-            if (response.ok) {
-                console.log("Logout successful from the server");
-                
-                // Clear the JWT cookie manually on the client-side (if not already cleared by backend)
-                clearJWT();
-    
-                // Clear the token from cookie and localStorage/sessionStorage
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'; // Clear the cookie
-        
-                // Clear any other stored user data (e.g., localStorage or sessionStorage)
-                localStorage.clear();
-                sessionStorage.clear();
-    
-                // Redirect to the login page or home page
-                window.location.href = 'index.html';  // Redirect to home page or login page
-            } else {
-                console.error("Failed to log out from the server");
-            }
-        } catch (error) {
-            console.error("Error logging out:", error);
-        }
-    });
+        // Load products when page loads
+        window.onload = fetchProducts;
     </script>
 </body>
 </html>
-
