@@ -1,15 +1,15 @@
 package com.example.ecommerce_system.dto;
 
-import java.util.Map;
+import java.util.List;
 
 public class OrderRequest {
-    private Map<Long, Integer> productQuantities; // Map of product IDs and their quantities
+    private List<OrderItemRequest> orderItems; // List of product ID and quantity pairs
 
-    public Map<Long, Integer> getProductQuantities() {
-        return productQuantities;
+    public List<OrderItemRequest> getOrderItems() {
+        return orderItems;
     }
 
-    public void setProductQuantities(Map<Long, Integer> productQuantities) {
-        this.productQuantities = productQuantities;
+    public void setOrderItems(List<OrderItemRequest> orderItems) {
+        this.orderItems = orderItems;
     }
 }

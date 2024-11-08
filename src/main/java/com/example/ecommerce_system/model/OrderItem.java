@@ -1,4 +1,6 @@
 package com.example.ecommerce_system.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 import jakarta.persistence.*;
 
@@ -16,8 +18,9 @@ public class OrderItem {
     private Integer quantity;
     private Double price;
 
-    @ManyToOne // Add this line to create the relationship with Order
-    @JoinColumn(name = "order_id", nullable = false) // Use the appropriate column name
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference  // Prevent recursion by marking the child side of the relationship
     private Order order;
 
     public OrderItem() {}

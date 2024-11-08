@@ -1,5 +1,8 @@
 package com.example.ecommerce_system.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,10 +16,11 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonManagedReference  // Prevent recursion by marking the parent side of the relationship
     private User user;
 
     private LocalDateTime orderDate = LocalDateTime.now();
-
+    
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 

@@ -3,6 +3,7 @@ package com.example.ecommerce_system.service;
 import com.example.ecommerce_system.dto.OrderRequest;
 import com.example.ecommerce_system.model.Order;
 import com.example.ecommerce_system.model.OrderItem;
+import com.example.ecommerce_system.model.Product;
 import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.repository.OrderRepository;
 import com.example.ecommerce_system.repository.ProductRepository;
@@ -115,8 +116,8 @@ public class UserService {
     }
 
     // public Optional<User> getUserFromToken(String token) {
-    //     String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
-    //     return userRepository.findByEmail(email);
+    // String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+    // return userRepository.findByEmail(email);
     // }
 
     public Long extractUserId(String token) {
@@ -129,8 +130,6 @@ public class UserService {
         user.getCart().add(productId); // Assuming cart is a List<Long> in User model
         userRepository.save(user);
     }
-
-
 
     public void removeFromCart(User user, Long productId) {
         user.getCart().remove(productId); // Assuming cart is a List<Long> in User model
@@ -145,16 +144,24 @@ public class UserService {
         Order order = new Order();
         order.setUser(user);
 
-        // Assuming each entry in productQuantities is a product ID and quantity
-        List<OrderItem> items = orderRequest.getProductQuantities().entrySet().stream()
-                .map(entry -> {
-                    OrderItem item = new OrderItem();
-                    item.setProduct(productRepository.findById(entry.getKey()).orElse(null));
-                    item.setQuantity(entry.getValue());
-                    return item;
-                }).collect(Collectors.toList());
+        List<OrderItem> items = orderRequest.getOrderItems().stream()
+                .map(itemRequest -> {
+                    Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
+                    if (product != null) {
+                        OrderItem orderItem = new OrderItem();
+                        orderItem.setProduct(product);
+                        orderItem.setQuantity(itemRequest.getQuantity());
+                        orderItem.setPrice(product.getPrice() * itemRequest.getQuantity()); // Calculate price
+                        orderItem.setOrder(order); // Link back to order
+                        return orderItem;
+                    }
+                    return null;
+                })
+                .filter(item -> item != null) // Ensure no null items
+                .collect(Collectors.toList());
 
         order.setOrderItems(items);
+        order.setTotalAmount(items.stream().mapToDouble(OrderItem::getPrice).sum()); // Calculate total amount
         return orderRepository.save(order);
     }
 }

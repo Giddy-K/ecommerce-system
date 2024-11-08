@@ -17,12 +17,13 @@
         }
 
         async function fetchOrderHistory() {
-            const token = getCookie('token');
-            const response = await fetch(`/api/users/order-history`, {  // Endpoint for order history
+            const token = getCookie('token');  // Get JWT token from cookies
+            const response = await fetch(`/api/users/orders/me`, {  // Corrected endpoint for order history
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+
             if (response.ok) {
                 const orders = await response.json();
                 const orderHistoryList = document.getElementById('orderHistoryList');
@@ -35,16 +36,27 @@
                         <div class="order-item">
                             <h5>Order ID: ${order.id}</h5>
                             <p>Status: ${order.status}</p>
-                            <p>Total Amount: $${order.totalAmount}</p>
+                            <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
+                            <p>Total Amount: $${order.orderItems.reduce((total, item) => total + (item.price * item.quantity), 0)}</p>
+                            <h6>Items:</h6>
+                            <ul>
+                                ${order.orderItems.map(item => `
+                                    <li>
+                                        ${item.product.name} - $${item.price} x ${item.quantity}
+                                    </li>
+                                `).join('')}
+                            </ul>
                             <hr>
                         </div>
                     `;
                     orderHistoryList.appendChild(orderItem);
                 });
+            } else {
+                console.error('Failed to fetch order history');
             }
         }
 
-        window.onload = fetchOrderHistory;
+        window.onload = fetchOrderHistory;  // Load order history on page load
     </script>
 </body>
 </html>

@@ -29,15 +29,17 @@
             const response = await fetch('/api/users/cart', {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
             if (response.ok) {
                 const cartData = await response.json();
                 const cartList = document.getElementById('cartList');
                 cartList.innerHTML = '';
                 
                 let totalAmount = 0;
+                const cartItems = []; // Array to store items for localStorage
 
                 for (const [productId, quantity] of Object.entries(cartData)) {
-                    const productResponse = await fetch(`/api/products/${productId}`); // Assumes an endpoint to get product details
+                    const productResponse = await fetch(`/api/products/${productId}`);
                     if (productResponse.ok) {
                         const product = await productResponse.json();
 
@@ -53,11 +55,20 @@
                         `;
                         cartList.appendChild(cartItem);
 
-                        totalAmount += product.price * quantity; // Calculate total cost
+                        totalAmount += product.price * quantity;
+
+                        // Add item to cartItems array for localStorage
+                        cartItems.push({
+                            productId: product.id,
+                            quantity: quantity
+                        });
                     }
                 }
 
                 document.getElementById('cartTotal').innerText = `Total: $${totalAmount.toFixed(2)}`;
+
+                // Store cart items in localStorage for checkout page
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
             }
         }
 

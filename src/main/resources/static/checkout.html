@@ -26,29 +26,58 @@
             return match ? match[2] : null;
         }
 
+        function getCartItems() {
+            return JSON.parse(localStorage.getItem('cartItems')) || [];
+        }
+
         async function processPayment(event) {
             event.preventDefault();
-
+        
             const token = getCookie('token');
-            const response = await fetch(`/api/users/order`, {  // Adjusted endpoint for placing an order
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    cardNumber: document.getElementById('cardNumber').value,
-                    billingAddress: document.getElementById('billingAddress').value
-                })
-            });
-
-            if (response.ok) {
-                alert("Order confirmed! Thank you for your purchase.");
-                window.location.href = 'order-history.html'; // Redirect to order history page
-            } else {
-                alert("Payment failed. Please check your details and try again.");
+            if (!token) {
+                alert("Authorization token not found.");
+                return;
+            }
+        
+            // Retrieve cart items from localStorage
+            const cartItems = getCartItems();
+            const orderItems = cartItems.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity
+            }));
+        
+            // Construct the orderRequest body as expected by the backend
+            const orderRequest = {
+                orderItems: orderItems
+            };
+        
+            console.log("Order Request Payload:", JSON.stringify(orderRequest)); // Log request body
+        
+            try {
+                const response = await fetch(`/api/users/order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(orderRequest)
+                });
+        
+                if (response.ok) {
+                    alert("Order confirmed! Thank you for your purchase.");
+                    localStorage.removeItem('cartItems');  // Clear cart after placing order
+                    window.location.href = 'order-history.html'; // Redirect to order history page
+                } else {
+                    const errorMessage = await response.text(); // Capture backend error message
+                    console.error("Order error:", errorMessage); // Log the error from the backend
+                    alert("Payment failed. Please check your details and try again.");
+                }
+            } catch (error) {
+                console.error("Network or other error:", error);
+                alert("An error occurred. Please try again later.");
             }
         }
+        
     </script>
 </body>
 </html>

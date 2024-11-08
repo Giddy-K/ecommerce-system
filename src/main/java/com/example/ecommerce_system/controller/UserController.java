@@ -228,14 +228,18 @@ public class UserController {
 
     @PostMapping("/order")
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest,
-            @RequestHeader("Authorization") String token) {
+                                        @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.getUserFromToken(token);
-        if (user.isPresent()) {
-            Order order = userService.placeOrder(user.get(), orderRequest);
-            return ResponseEntity.ok(order);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+        Order order = userService.placeOrder(user.get(), orderRequest);
+        if (order.getOrderItems().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order contains invalid or unavailable products.");
+        }
+        return ResponseEntity.ok(order);
     }
+    
 
     @GetMapping("/orders/me")
     public ResponseEntity<?> getUserOrders(@RequestHeader("Authorization") String token) {

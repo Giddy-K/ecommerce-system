@@ -1,6 +1,7 @@
 package com.example.ecommerce_system.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +25,7 @@ public class User {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore  // Prevent recursive serialization
     private List<Order> orders;
 
     @ElementCollection
