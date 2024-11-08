@@ -1,201 +1,113 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Page</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Admin Dashboard</h2>
-
-        <div id="authButtons" class="mb-3">
-            <a id="logoutButton" class="btn btn-danger">Logout</a>
-        </div>
-
-        <h3>Products</h3>
-        <div id="productList" class="row"></div>
-        
-        <h3>Add New Product</h3>
-        <form id="productForm">
-            <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <input type="text" class="form-control" id="productName" required>
-            </div>
-            <div class="form-group">
-                <label for="productDescription">Description:</label>
-                <input type="text" class="form-control" id="productDescription" required>
-            </div>
-            <div class="form-group">
-                <label for="productPrice">Price:</label>
-                <input type="number" class="form-control" id="productPrice" required>
-            </div>
-            <div class="form-group">
-                <label for="productStock">Stock:</label>
-                <input type="number" class="form-control" id="productStock" required>
-            </div>
-            <div class="form-group">
-                <label for="productImage">Image URL:</label>
-                <input type="text" class="form-control" id="productImage" required>
-            </div>
-            <div class="form-group">
-                <label for="productCategory">Category:</label>
-                <input type="text" class="form-control" id="productCategory" required></input>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Product</button>
-        </form>
-        
-    </div>
-
-    <script>
-        async function fetchProducts() {
-            const response = await fetch('/api/products');
-            if (response.ok) {
-                const products = await response.json();
-                const productList = document.getElementById('productList');
-                productList.innerHTML = '';
-                products.forEach(product => {
-                    const productCard = document.createElement('div');
-                    productCard.className = 'col-md-3';
-                    productCard.innerHTML = `
-                        <div class="product-card">
-                            <h5>${product.name}</h5>
-                            <p>${product.description}</p>
-                            <p>Price: $${product.price.toFixed(2)}</p>
-                            <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Delete</button>
-                        </div>
-                    `;
-                    productList.appendChild(productCard);
-                });
-            }
-        }
-
-        async function deleteProduct(productId) {
-            await fetch(`/api/products/${productId}`, {
-                method: 'DELETE'
-            });
-            fetchProducts(); // Refresh product list
-        }
-
-        document.getElementById('productForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const name = document.getElementById('productName').value;
-            const description = document.getElementById('productDescription').value;
-            const price = parseFloat(document.getElementById('productPrice').value);
-            const stock = parseInt(document.getElementById('productStock').value);
-            const imageUrl = document.getElementById('productImage').value;
-            const category = document.getElementById('productCategory').value;
-        
-            const productData = {
-                name,
-                description,
-                price,
-                stock,
-                imageUrl,
-                category,
-                rating: 0
-            };
-        
-            try {
-                const response = await fetch('/api/products', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData) // Use the productData object directly
-                });
-        
-                if (response.ok) {
-                    fetchProducts(); // Refresh product list
-                    document.getElementById('productForm').reset();
-                } else {
-                    const error = await response.text();
-                    alert(`Error: ${error}`);
-                }
-            } catch (error) {
-                alert(`Unexpected error: ${error.message}`);
-            }
-        });
-
-        document.getElementById('logoutButton').addEventListener('click', async () => {
-            const response = await fetch('/api/users/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-        
-            if (response.ok) {
-                document.cookie = 'JWT=; Max-Age=0; Path=/; HttpOnly;';
-                window.location.href = "index.html";
-            }
-        });
-
-        window.onload = () => {
-            fetchCategories(); // Populate category dropdown on load
-            fetchProducts();   // Populate product list on load
-        };
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Admin Dashboard</h2>
-        <ul>
-            <li><a href="admin-products.html" class="btn btn-primary">Manage Products</a></li>
-            <li><a href="admin-orders.html" class="btn btn-primary">Manage Orders</a></li>
-        </ul>
-        
-        <div id="authButtons" class="mb-3">
-            <button id="logoutButton" class="btn btn-danger">Logout</button>
-        </div>
-    </div>
-
-    <script>
-        // Function to clear the cookie (JWT) from the browser
-    function clearJWT() {
-        document.cookie = 'JWT=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-    }
-
-    // Logout functionality
-    document.getElementById('logoutButton').addEventListener('click', async () => {
-        try {
-            // Send POST request to backend for logout
-            const response = await fetch('api/users/logout', {
-                method: 'POST',
-                credentials: 'include',  // Include cookies if the session is on the same domain
-            });
-    
-            if (response.ok) {
-                console.log("Logout successful from the server");
-                
-                // Clear the JWT cookie manually on the client-side (if not already cleared by backend)
-                clearJWT();
-    
-                // Clear the token from cookie and localStorage/sessionStorage
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'; // Clear the cookie
-        
-                // Clear any other stored user data (e.g., localStorage or sessionStorage)
-                localStorage.clear();
-                sessionStorage.clear();
-    
-                // Redirect to the login page or home page
-                window.location.href = 'index.html';  // Redirect to home page or login page
-            } else {
-                console.error("Failed to log out from the server");
-            }
-        } catch (error) {
-            console.error("Error logging out:", error);
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+        .dashboard-container {
+            margin-top: 50px;
+            text-align: center;
         }
-    });
-    </script>
-</body>
-</html>
+        .dashboard-card {
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: scale(1.05);
+        }
+        .dashboard-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container dashboard-container">
+            <h2 class="mb-5">Admin Dashboard</h2>
 
+            <div class="row mb-4">
+                <!-- Manage Products Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">📦</div>
+                        <h4>Manage Products</h4>
+                        <p>View, add, edit, and delete products as the admin.</p>
+                        <a href="admin-products.html" class="btn btn-primary">Go
+                            to Products</a>
+                    </div>
+                </div>
+
+                <!-- Manage Orders Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">🛒</div>
+                        <h4>Manage Orders</h4>
+                        <p>Review, process, and track customer orders.</p>
+                        <a href="admin-orders.html" class="btn btn-primary">Go
+                            to Orders</a>
+                    </div>
+                </div>
+
+                <!-- Manage Analytics Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">📊</div>
+                        <h4>Analytics</h4>
+                        <p>Access sales reports, inventory levels, and customer
+                            insights and reviews.</p>
+                        <a href="admin-analytics.html"
+                            class="btn btn-primary">Go to Analytics</a>
+                    </div>
+                </div>
+
+                <!-- Manage Users Card -->
+                <!-- <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">👤</div>
+                        <h4>Manage Users</h4>
+                        <p>View and manage user accounts and permissions.</p>
+                        <a href="admin-users.html" class="btn btn-primary">Go to
+                            Users</a>
+                    </div>
+                </div> -->
+            </div>
+
+            <div class="mb-3">
+                <button id="logoutButton" class="btn btn-danger">Logout</button>
+            </div>
+        </div>
+
+        <script>
+        // Function to clear the JWT from cookies
+        function clearJWT() {
+            document.cookie = 'JWT=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+        }
+
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('api/users/logout', {
+                    method: 'POST',
+                    credentials: 'include', 
+                });
+
+                if (response.ok) {
+                    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'; 
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';  
+                } else {
+                    console.error("Failed to log out from the server");
+                }
+            } catch (error) {
+                console.error("Error logging out:", error);
+            }
+        });
+    </script>
+    </body>
+</html>

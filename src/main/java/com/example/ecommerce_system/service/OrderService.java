@@ -41,6 +41,10 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public void updateOrder(Order order) {
+        orderRepository.save(order);
+    }
+
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
     }

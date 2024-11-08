@@ -1,5 +1,6 @@
 package com.example.ecommerce_system.controller;
 
+import com.example.ecommerce_system.dto.OrderStatusUpdateRequest;
 import com.example.ecommerce_system.model.Order;
 import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.OrderService;
@@ -47,6 +48,22 @@ public class OrderController {
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
+    }
+
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<String> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestBody OrderStatusUpdateRequest request) {
+        Optional<Order> orderOptional = orderService.getOrderById(orderId);
+
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(request.getStatus()); // Update the status
+            orderService.updateOrder(order); // Save updated order
+            return ResponseEntity.ok("Order status updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found.");
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -9,14 +9,13 @@
 <body>
     <div class="container mt-5">
         <h2>Manage Orders</h2>
-
         <div id="orderList" class="row"></div>
     </div>
 
     <script>
         // Fetch and display orders
         async function fetchOrders() {
-            const response = await fetch('/api/users/orders/me', {
+            const response = await fetch('/api/orders', {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('JWT') // Use stored JWT for authentication
@@ -28,19 +27,75 @@
                 orderList.innerHTML = '';
                 orders.forEach(order => {
                     const orderCard = document.createElement('div');
-                    orderCard.className = 'col-md-4';
+                    orderCard.className = 'col-md-6 mb-4';
                     orderCard.innerHTML = `
-                        <div class="order-card">
-                            <h5>Order ID: ${order.id}</h5>
-                            <p>Status: ${order.status}</p>
-                            <p>Order Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
-                            <p>Total: $${order.totalAmount}</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>Order ID: ${order.id}</h5>
+                                <p><strong>Customer:</strong> ${order.user.name} (${order.user.email})</p>
+                                <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+                                <p><strong>Total Amount:</strong> $${order.totalAmount.toFixed(2)}</p>
+                                <p><strong>Status:</strong> ${getOrderStatus(order.status)}</p>
+
+                                <h6>Items:</h6>
+                                <ul>
+                                    ${order.orderItems.map(item => `
+                                        <li>
+                                            <strong>${item.product.name}</strong> - Quantity: ${item.quantity}, Price: $${item.price.toFixed(2)}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+
+                                <div class="mt-3">
+                                    <label for="statusSelect${order.id}"><strong>Change Status:</strong></label>
+                                    <select id="statusSelect${order.id}" class="form-control" onchange="updateOrderStatus(${order.id})">
+                                        <option value="0" ${order.status === 0 ? 'selected' : ''}>Pending</option>
+                                        <option value="1" ${order.status === 1 ? 'selected' : ''}>Processing</option>
+                                        <option value="2" ${order.status === 2 ? 'selected' : ''}>Shipped</option>
+                                        <option value="3" ${order.status === 3 ? 'selected' : ''}>Delivered</option>
+                                        <option value="4" ${order.status === 4 ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     `;
                     orderList.appendChild(orderCard);
                 });
             } else {
                 alert('Error fetching orders');
+            }
+        }
+
+        // Helper function to map status codes to text
+        function getOrderStatus(statusCode) {
+            switch (statusCode) {
+                case 0: return 'Pending';
+                case 1: return 'Processing';
+                case 2: return 'Shipped';
+                case 3: return 'Delivered';
+                case 4: return 'Cancelled';
+                default: return 'Unknown';
+            }
+        }
+
+        // Function to update the order status
+        async function updateOrderStatus(orderId) {
+            const newStatus = document.getElementById(`statusSelect${orderId}`).value;
+
+            const response = await fetch(`/api/orders/${orderId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('JWT')
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (response.ok) {
+                alert('Order status updated successfully');
+                fetchOrders(); // Refresh order list
+            } else {
+                alert('Failed to update order status');
             }
         }
 

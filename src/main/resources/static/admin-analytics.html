@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Analytics Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .analytics-container {
+            margin-top: 50px;
+        }
+        .section-header {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            padding: 20px;
+        }
+        .card:hover {
+            transform: scale(1.02);
+        }
+        .chart {
+            min-height: 300px;
+        }
+        .card-title {
+            font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container analytics-container">
+        <h2 class="text-center mb-5">Admin Analytics Dashboard</h2>
+        
+        <!-- Sales Reports Section -->
+        <div class="mb-5">
+            <div class="section-header">Sales Reports</div>
+            <div class="card mb-4">
+                <h5 class="card-title">Monthly Sales Overview</h5>
+                <canvas id="salesChart" class="chart"></canvas>
+                <p class="mt-3">View a breakdown of monthly sales to analyze performance trends.</p>
+            </div>
+        </div>
+        
+        <!-- Inventory Levels Section -->
+        <div class="mb-5">
+            <div class="section-header">Inventory Levels</div>
+            <div class="card mb-4">
+                <h5 class="card-title">Product Inventory Status</h5>
+                <canvas id="inventoryChart" class="chart"></canvas>
+                <p class="mt-3">Monitor inventory levels to ensure optimal stock availability.</p>
+            </div>
+        </div>
+        
+        <!-- Customer Insights and Reviews Section -->
+        <div class="mb-5">
+            <div class="section-header">Customer Insights & Reviews</div>
+            <div class="card mb-4">
+                <h5 class="card-title">Customer Feedback Analysis</h5>
+                <canvas id="customerFeedback" class="chart"></canvas>
+                <p class="mt-3">Gain insights into customer feedback and improve user experience.</p>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard Button -->
+        <div class="text-center">
+            <a href="admin.html" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample data for charts
+        const monthlySalesData = [500, 1000, 750, 1200, 900, 1300, 1100, 1400, 1250, 1500, 1600, 1750];
+        const inventoryData = [150, 200, 180, 120, 300, 250, 100];
+        const customerFeedbackData = [75, 60, 85, 90, 70, 65, 80];
+
+        // Sales Chart
+        new Chart(document.getElementById('salesChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Sales ($)',
+                    data: monthlySalesData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Inventory Chart
+        new Chart(document.getElementById('inventoryChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E', 'Product F', 'Product G'],
+                datasets: [{
+                    label: 'Stock Level',
+                    data: inventoryData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Customer Feedback Chart
+        new Chart(document.getElementById('customerFeedback').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Very Satisfied', 'Satisfied', 'Neutral', 'Dissatisfied', 'Very Dissatisfied'],
+                datasets: [{
+                    data: customerFeedbackData,
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(153, 102, 255, 0.6)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+</body>
+</html>
