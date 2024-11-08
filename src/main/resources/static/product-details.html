@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Details</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>Product Details</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <img id="productImage" class="img-fluid"
+                        alt="Product Image">
+                </div>
+                <div class="col-md-6">
+                    <h3 id="productName"></h3>
+                    <p id="productDescription"></p>
+                    <p><strong>$<span id="productPrice"></span></strong></p>
+                    <button class="btn btn-primary" id="addToCartBtn">Add to
+                        Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+// Helper function to retrieve a specific cookie by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+// Fetch product details
+async function fetchProductDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    const response = await fetch(`/api/products/${productId}`);
+    if (response.ok) {
+        const product = await response.json();
+        document.getElementById('productImage').src = product.imageUrl;
+        document.getElementById('productName').textContent = product.name;
+        document.getElementById('productDescription').textContent = product.description;
+        document.getElementById('productPrice').textContent = product.price;
+    }
+}
+
+// Add product to cart
+document.getElementById('addToCartBtn').addEventListener('click', async () => {
+    const token = localStorage.getItem('jwtToken'); // Retrieve token from localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    console.log(token);
+
+    if (!token) {
+        alert('User not authenticated. Please log in.');
+        return;
+    }
+
+    console.log(`Product ID: ${productId}`);
+    console.log(`Token: ${token}`);
+
+    const response = await fetch(`/api/users/add-to-cart`, {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ productId })
+    });
+
+    if (response.ok) {
+        alert('Product added to cart!');
+    } else {
+        const errorData = await response.json();
+        alert(`Failed to add product to cart. ${errorData.message || errorData.error}`);
+    }
+});
+
+// Load product details on page load
+window.onload = fetchProductDetails;
+
+    </script>
+    </body>
+</html>

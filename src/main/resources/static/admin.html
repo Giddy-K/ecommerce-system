@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+        .dashboard-container {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .dashboard-card {
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: scale(1.05);
+        }
+        .dashboard-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container dashboard-container">
+            <h2 class="mb-5">Admin Dashboard</h2>
+
+            <div class="row mb-4">
+                <!-- Manage Products Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">📦</div>
+                        <h4>Manage Products</h4>
+                        <p>View, add, edit, and delete products as the admin.</p>
+                        <a href="admin-products.html" class="btn btn-primary">Go
+                            to Products</a>
+                    </div>
+                </div>
+
+                <!-- Manage Orders Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">🛒</div>
+                        <h4>Manage Orders</h4>
+                        <p>Review, process, and track customer orders.</p>
+                        <a href="admin-orders.html" class="btn btn-primary">Go
+                            to Orders</a>
+                    </div>
+                </div>
+
+                <!-- Manage Analytics Card -->
+                <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">📊</div>
+                        <h4>Analytics</h4>
+                        <p>Access sales reports, inventory levels, and customer
+                            insights and reviews.</p>
+                        <a href="admin-analytics.html"
+                            class="btn btn-primary">Go to Analytics</a>
+                    </div>
+                </div>
+
+                <!-- Manage Users Card -->
+                <!-- <div class="col-md-4">
+                    <div class="card dashboard-card">
+                        <div class="dashboard-icon">👤</div>
+                        <h4>Manage Users</h4>
+                        <p>View and manage user accounts and permissions.</p>
+                        <a href="admin-users.html" class="btn btn-primary">Go to
+                            Users</a>
+                    </div>
+                </div> -->
+            </div>
+
+            <div class="mb-3">
+                <button id="logoutButton" class="btn btn-danger">Logout</button>
+            </div>
+        </div>
+
+        <script>
+        // Function to clear the JWT from cookies
+        function clearJWT() {
+            document.cookie = 'JWT=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+        }
+
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch('api/users/logout', {
+                    method: 'POST',
+                    credentials: 'include', 
+                });
+
+                if (response.ok) {
+                    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC'; 
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';  
+                } else {
+                    console.error("Failed to log out from the server");
+                }
+            } catch (error) {
+                console.error("Error logging out:", error);
+            }
+        });
+    </script>
+    </body>
+</html>

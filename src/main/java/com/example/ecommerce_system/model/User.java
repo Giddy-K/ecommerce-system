@@ -1,6 +1,9 @@
 package com.example.ecommerce_system.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -20,6 +23,13 @@ public class User {
     
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore  // Prevent recursive serialization
+    private List<Order> orders;
+
+    @ElementCollection
+    private List<Long> cart; // Store product IDs in the cart
 
     // Constructors, Getters, and Setters
     public User() {}
@@ -70,6 +80,22 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public List<Long> getCart() {
+        return cart;
+    }
+
+    public void setCart(List<Long> cart) {
+        this.cart = cart;
     }
 
     // Override equals and hashCode

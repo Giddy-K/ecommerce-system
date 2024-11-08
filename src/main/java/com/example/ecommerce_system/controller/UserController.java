@@ -1,10 +1,11 @@
 package com.example.ecommerce_system.controller;
 
+import com.example.ecommerce_system.dto.OrderRequest;
+import com.example.ecommerce_system.model.Order;
 import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.UserService;
 import com.example.ecommerce_system.util.JwtUtil;
 
-import jakarta.mail.internet.MimeMessage; // For sending emails if needed
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,17 +42,18 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password,
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials,
             HttpServletResponse response) {
+        String email = credentials.get("email");
+        String password = credentials.get("password");
+
         try {
             System.out.println("Login attempt for email: " + email);
-            // logger.info("Login attempt for email: {}", email);
-
-            // Authenticate user
             Optional<User> user = userService.login(email, password);
             if (user.isPresent()) {
                 // Generate token with claims
-                String token = jwtUtil.generateTokenWithClaims(email, Map.of("role", user.get().getRole()));
+                String token = jwtUtil.generateTokenWithClaims(email,
+                        Map.of("role", user.get().getRole(), "name", user.get().getName()));
 
                 // Set JWT as a secure HttpOnly cookie with SameSite attribute
                 Cookie cookie = new Cookie("JWT", token);
@@ -61,23 +63,19 @@ public class UserController {
                 cookie.setPath("/");
                 response.addCookie(cookie);
 
-                // Add JWT to Authorization header
-                response.setHeader("Authorization", "Bearer " + token);
-
                 // Prepare JSON response
                 Map<String, String> responseBody = new HashMap<>();
                 responseBody.put("message", "Login successful");
                 responseBody.put("username", user.get().getName());
+                responseBody.put("token", token); // Return the token
+                responseBody.put("role", user.get().getRole().toString()); // Include user role
                 return ResponseEntity.ok(responseBody);
             }
 
-            // Log failed attempt with generic message
             System.out.println("Invalid login attempt for email: " + email);
-            // logger.warn("Invalid login attempt for email: {}", email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
         } catch (Exception e) {
-            System.out.println("An error occurred during login for email: {}" + email + e);
-            // logger.error("An error occurred during login for email: {}", email, e);
+            System.out.println("An error occurred during login for email: " + email + e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during login.");
         }
     }
@@ -123,31 +121,42 @@ public class UserController {
         cookie.setPath("/");
         cookie.setMaxAge(0); // Clear cookie
         response.addCookie(cookie);
-        
+
         return ResponseEntity.ok("Logout successful");
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable Long userId,
-            @RequestHeader("Authorization") String token) {
-
-        if (isUserAdmin(token)) {
-            Optional<User> user = userService.getUserById(userId);
-            return user.map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Admin access required.");
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
+        // Assuming the token service can extract userId from the token
+        Long userId = userService.extractUserId(token.replace("Bearer ", ""));
+        Optional<User> user = userService.getUserById(userId);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestBody User user,
-            @RequestHeader("Authorization") String token) {
-        if (isUserAdmin(token)) {
-            userService.updateUser(userId, user);
+    @PutMapping("/me")
+    public ResponseEntity<String> updateUser(@RequestBody User user,
+                                             @RequestHeader("Authorization") String token) {
+        Optional<User> userI = userService.getUserFromToken(token);
+        if (userI.isPresent()) {
+            User authenticatedUser = userI.get();
+    
+            // Update fields on the authenticated user
+            authenticatedUser.setName(user.getName());
+            
+            // Update password if provided in the request
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                authenticatedUser.setPassword(user.getPassword());
+            }
+    
+            // Call the service to update and save the user
+            userService.updateUser(authenticatedUser);
+            
             return ResponseEntity.ok("User updated successfully.");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Admin access required.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
     }
+    
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId,
@@ -168,22 +177,85 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Admin access required.");
     }
 
-    @GetMapping("/admin")
-    public ResponseEntity<String> adminEndpoint(@RequestHeader("Authorization") String token) {
-        if (isUserAdmin(token)) {
-            return ResponseEntity.ok("Admin access granted");
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-    }
+    // @GetMapping("/admin")
+    // public ResponseEntity<String> adminEndpoint(@RequestHeader("Authorization")
+    // String token) {
+    // if (isUserAdmin(token)) {
+    // return ResponseEntity.ok("Admin access granted");
+    // }
+    // return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+    // }
 
-    private boolean isUserAdmin(String token) {
-        String email = jwtUtil.extractEmail(token.substring(7)); // Remove "Bearer " prefix
+    @GetMapping("/admin")
+    public boolean isUserAdmin(String token) {
+        // Remove "Bearer " prefix if present
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        String email = jwtUtil.extractEmail(token);
         Optional<User> user = userService.getUserByEmail(email);
         return user.isPresent() && user.get().getRole() == User.Role.ADMIN;
     }
 
-    private String hashPassword(String password) {
-        // Implement password hashing logic, e.g., using BCryptPasswordEncoder
-        return password; // Replace with actual hashed password
+    @PostMapping("/add-to-cart")
+    public ResponseEntity<?> addToCart(@RequestBody Map<String, Long> request,
+            @RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            userService.addToCart(user.get(), request.get("productId"));
+            return ResponseEntity.ok("Product added to cart.");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
     }
+
+    @GetMapping("/cart")
+    public ResponseEntity<?> getCartItems(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            List<Long> cart = user.get().getCart(); // Assuming cart is a list of product IDs
+            Map<Long, Integer> cartItems = new HashMap<>();
+            for (Long productId : cart) {
+                cartItems.put(productId, cartItems.getOrDefault(productId, 0) + 1);
+            }
+            return ResponseEntity.ok(cartItems); // Return the cart as a map of product IDs and quantities
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+    }
+
+    @DeleteMapping("/remove-from-cart/{productId}")
+    public ResponseEntity<?> removeFromCart(@PathVariable Long productId,
+            @RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            userService.removeFromCart(user.get(), productId);
+            return ResponseEntity.ok("Product removed from cart.");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+    }
+
+    @PostMapping("/order")
+    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest,
+            @RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+        }
+        Order order = userService.placeOrder(user.get(), orderRequest);
+        if (order.getOrderItems().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Order contains invalid or unavailable products.");
+        }
+        return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/orders/me")
+    public ResponseEntity<?> getUserOrders(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            List<Order> orders = userService.getUserOrders(user.get().getId());
+            return ResponseEntity.ok(orders);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+    }
+
 }

@@ -1,5 +1,8 @@
 package com.example.ecommerce_system.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,23 +15,35 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonManagedReference  // Prevent recursion by marking the parent side of the relationship
     private User user;
 
-    private LocalDateTime orderDate;
-
-    @OneToMany(mappedBy = "order")
+    private LocalDateTime orderDate = LocalDateTime.now();
+    
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 
     private double totalAmount;
+    private String address;
+    private Integer status = 0;
 
-    public Order() {}
+    public Order() {
+    }
 
-    public Order(User user, LocalDateTime orderDate, List<OrderItem> orderItems, double totalAmount) {
+    public Order(User user, LocalDateTime orderDate, List<OrderItem> orderItems, double totalAmount, String address,
+            Integer status) {
         this.user = user;
         this.orderDate = orderDate;
         this.orderItems = orderItems;
         this.totalAmount = totalAmount;
+        this.address = address;
+        this.status = status;
+
+        // Set the order reference in OrderItems
+        for (OrderItem orderItem : orderItems) {
+            orderItem.setOrder(this);
+        }
     }
 
     // Getters and Setters
@@ -71,5 +86,21 @@ public class Order {
 
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

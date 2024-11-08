@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Manage Products</h2>
+        
+        <!-- Product List -->
+        <div id="productList" class="row"></div>
+
+        <!-- Add New Product Form -->
+        <h3>Add New Product</h3>
+        <form id="addProductForm">
+            <div class="form-group">
+                <label for="addProductName">Product Name:</label>
+                <input type="text" class="form-control" id="addProductName" required>
+            </div>
+            <div class="form-group">
+                <label for="addProductDescription">Description:</label>
+                <input type="text" class="form-control" id="addProductDescription" required>
+            </div>
+            <div class="form-group">
+                <label for="addProductPrice">Price:</label>
+                <input type="number" class="form-control" id="addProductPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="addProductStock">Stock:</label>
+                <input type="number" class="form-control" id="addProductStock" required>
+            </div>
+            <div class="form-group">
+                <label for="addProductImage">Image URL:</label>
+                <input type="text" class="form-control" id="addProductImage" required>
+            </div>
+            <div class="form-group">
+                <label for="addProductCategory">Category:</label>
+                <input type="text" class="form-control" id="addProductCategory" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Product</button>
+        </form>
+
+        <!-- Update Product Form -->
+        <h3>Update Product</h3>
+        <form id="updateProductForm" style="display: none;">
+            <div class="form-group">
+                <label for="updateProductName">Product Name:</label>
+                <input type="text" class="form-control" id="updateProductName" required>
+            </div>
+            <div class="form-group">
+                <label for="updateProductDescription">Description:</label>
+                <input type="text" class="form-control" id="updateProductDescription" required>
+            </div>
+            <div class="form-group">
+                <label for="updateProductPrice">Price:</label>
+                <input type="number" class="form-control" id="updateProductPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="updateProductStock">Stock:</label>
+                <input type="number" class="form-control" id="updateProductStock" required>
+            </div>
+            <div class="form-group">
+                <label for="updateProductImage">Image URL:</label>
+                <input type="text" class="form-control" id="updateProductImage" required>
+            </div>
+            <div class="form-group">
+                <label for="updateProductCategory">Category:</label>
+                <input type="text" class="form-control" id="updateProductCategory" required>
+            </div>
+            <button type="submit" class="btn btn-warning">Update Product</button>
+            <button type="button" onclick="cancelUpdate()" class="btn btn-secondary">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        let currentProductId = null;
+
+        // Fetch and display products
+        async function fetchProducts() {
+            const response = await fetch('/api/products');
+            if (response.ok) {
+                const products = await response.json();
+                const productList = document.getElementById('productList');
+                productList.innerHTML = '';
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'col-md-3';
+                    productCard.innerHTML = `
+                        <div class="product-card">
+                            <h5>${product.name}</h5>
+                            <p>${product.description}</p>
+                            <p>Price: $${product.price.toFixed(2)}</p>
+                            <button onclick="populateUpdateForm(${product.id})" class="btn btn-primary">Edit</button>
+                            <button onclick="deleteProduct(${product.id})" class="btn btn-danger">Delete</button>
+                        </div>
+                    `;
+                    productList.appendChild(productCard);
+                });
+            }
+        }
+
+        // Add new product
+        document.getElementById('addProductForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const productData = {
+                name: document.getElementById('addProductName').value,
+                description: document.getElementById('addProductDescription').value,
+                price: parseFloat(document.getElementById('addProductPrice').value),
+                stock: parseInt(document.getElementById('addProductStock').value),
+                imageUrl: document.getElementById('addProductImage').value,
+                category: document.getElementById('addProductCategory').value
+            };
+
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            });
+
+            if (response.ok) {
+                fetchProducts();
+                document.getElementById('addProductForm').reset();
+            } else {
+                alert(`Error adding product: ${await response.text()}`);
+            }
+        });
+
+        // Populate update form
+        async function populateUpdateForm(productId) {
+            const response = await fetch(`/api/products/${productId}`);
+            if (response.ok) {
+                const product = await response.json();
+                currentProductId = productId;
+                document.getElementById('updateProductName').value = product.name;
+                document.getElementById('updateProductDescription').value = product.description;
+                document.getElementById('updateProductPrice').value = product.price;
+                document.getElementById('updateProductStock').value = product.stock;
+                document.getElementById('updateProductImage').value = product.imageUrl;
+                document.getElementById('updateProductCategory').value = product.category;
+
+                document.getElementById('updateProductForm').style.display = 'block';
+            } else {
+                alert(`Error fetching product details: ${await response.text()}`);
+            }
+        }
+
+        // Update product
+        document.getElementById('updateProductForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const productData = {
+                name: document.getElementById('updateProductName').value,
+                description: document.getElementById('updateProductDescription').value,
+                price: parseFloat(document.getElementById('updateProductPrice').value),
+                stock: parseInt(document.getElementById('updateProductStock').value),
+                imageUrl: document.getElementById('updateProductImage').value,
+                category: document.getElementById('updateProductCategory').value
+            };
+
+            const response = await fetch(`/api/products/${currentProductId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            });
+
+            if (response.ok) {
+                fetchProducts();
+                document.getElementById('updateProductForm').reset();
+                document.getElementById('updateProductForm').style.display = 'none';
+            } else {
+                alert(`Error updating product: ${await response.text()}`);
+            }
+        });
+
+        // Cancel update
+        function cancelUpdate() {
+            document.getElementById('updateProductForm').reset();
+            document.getElementById('updateProductForm').style.display = 'none';
+        }
+
+        // Delete product
+        async function deleteProduct(productId) {
+            const response = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+            if (response.ok) {
+                fetchProducts();
+            } else {
+                alert(`Error deleting product: ${await response.text()}`);
+            }
+        }
+
+        // Load products on page load
+        window.onload = fetchProducts;
+    </script>
+</body>
+</html>

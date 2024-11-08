@@ -1,4 +1,6 @@
 package com.example.ecommerce_system.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 import jakarta.persistence.*;
 
@@ -10,42 +12,31 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private int quantity;
+    private Integer quantity;
+    private Double price;
 
-    private double price;
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference  // Prevent recursion by marking the child side of the relationship
+    private Order order;
 
     public OrderItem() {}
 
-    public OrderItem(Order order, Product product, int quantity, double price) {
-        this.order = order;
-        this.product = product;
+    public OrderItem(Integer quantity, Double price) {
         this.quantity = quantity;
         this.price = price;
     }
 
     // Getters and Setters
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public Product getProduct() {
@@ -56,19 +47,27 @@ public class OrderItem {
         this.product = product;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Order getOrder() {
+        return order; // Add getter for Order
+    }
+
+    public void setOrder(Order order) {
+        this.order = order; // Add setter for Order
     }
 }

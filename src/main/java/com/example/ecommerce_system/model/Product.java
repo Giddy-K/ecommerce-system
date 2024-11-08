@@ -1,5 +1,6 @@
 package com.example.ecommerce_system.model;
 
+import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,24 +14,22 @@ public class Product {
     private String description;
     private double price;
     private int stock;
-    
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private String category;
+    private String imageUrl;
 
-    private String imageUrl; // Use String to represent the URL of the image
-    private int rating;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Rating> ratings;
 
     public Product() {}
 
-    public Product(String name, String description, double price, int stock, Category category, String imageUrl, int rating) {
+    public Product(String name, String description, double price, int stock, String category, String imageUrl, List<Rating> ratings) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.category = category;
         this.imageUrl = imageUrl;
-        this.rating = rating;
+        this.ratings = ratings;
     }
 
     // Getters and Setters
@@ -75,11 +74,11 @@ public class Product {
         this.stock = stock;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
@@ -91,11 +90,11 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public int getRating() {
-        return rating;
+    public List<Rating> getRatings() {
+        return ratings;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
     }
 }

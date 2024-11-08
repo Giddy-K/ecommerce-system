@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>E-commerce System</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <!-- Header -->
+        <div class="container mt-5">
+            <h1 id="welcomeMessage">Welcome to the E-commerce System</h1>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href='index.html'>E-commerce</a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a id="loginButton" class="nav-link"
+                                href="login.html">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="signupButton" class="nav-link"
+                                href="signup.html">Sign Up</a>
+                        </li>
+                        <li class="nav-item d-none">
+                            <a id="logoutButton" class="nav-link"
+                                href="#">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Brief Description Section -->
+        <div class="container mt-4">
+            <p>
+                Welcome to our E-commerce System, designed to offer a seamless
+                shopping experience. Explore a wide range of products across
+                various categories, with secure checkout and efficient customer
+                service. Our platform ensures an engaging, user-friendly
+                experience tailored for all your shopping needs.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-light text-center text-lg-start mt-5">
+            <div class="text-center p-3">
+                <p>Contact Us: support@ecommerce.com | +123-456-7890</p>
+                <p>&copy; 2024 E-commerce System. All rights reserved.</p>
+                <p><a href="privacy-policy.html">Privacy Policy</a> | <a
+                        href="terms.html">Terms of Service</a></p>
+            </div>
+        </footer>
+
+        <!-- Script for Authentication Check and Redirect -->
+        <script>
+        // Function to decode JWT token and check expiration
+function decodeToken(token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+        const isTokenExpired = Date.now() >= payload.exp * 1000; // Check if expired
+        return isTokenExpired ? null : payload; // Return decoded payload if not expired
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+}
+
+const token = document.cookie.split('; ').find(row => row.startsWith('token='));  // Changed from 'JWT=' to 'token='
+const loginButton = document.getElementById('loginButton');
+const signupButton = document.getElementById('signupButton');
+const logoutButton = document.getElementById('logoutButton');
+const welcomeMessage = document.getElementById('welcomeMessage');
+
+// Function to check user authentication and redirect accordingly
+function checkUserAuth() {
+    if (token) {
+        const actualToken = token.split('=')[1];
+        const decodedToken = decodeToken(actualToken);
+
+        if (decodedToken) {
+            // Token is valid, redirect to the dashboard or admin page based on role
+            if (decodedToken.role === 'ADMIN') {
+                window.location.href = 'admin.html'; // Redirect to admin page
+            } else {
+                window.location.href = 'dashboard.html'; // Redirect to user dashboard
+            }
+        } else {
+            // Token is expired, clear the cookie and show login/signup options
+            document.cookie = 'token=; Max-Age=0; Path=/;';
+            loginButton.classList.remove('d-none');
+            signupButton.classList.remove('d-none');
+            logoutButton.classList.add('d-none');
+        }
+    } else {
+        // No token, show login/signup options
+        loginButton.classList.remove('d-none');
+        signupButton.classList.remove('d-none');
+        logoutButton.classList.add('d-none');
+    }
+}
+
+// Initial check for user authentication
+checkUserAuth();
+
+// Event listener for logout
+logoutButton.addEventListener('click', () => {
+    document.cookie = 'token=; Max-Age=0; Path=/;';  // Clear JWT cookie
+    window.location.reload(); // Refresh the page to update UI
+});
+    </script>
+    </body>
+</html>

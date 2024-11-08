@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Define dot colors for different order statuses */
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-pending { background-color: #ff0000; }     /* Light red */
+        .status-processing { background-color: #ffc400; }  /* Light yellow */
+        .status-shipped { background-color: #007bff; }     /* Light blue */
+        .status-delivered { background-color: #00ff3c; }   /* Light green */
+        .status-cancelled { background-color: #64393d; }   /* Light pink */
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>My Orders</h2>
+        <table class="table table-striped" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="orderList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Map status codes to human-readable status labels and CSS classes
+        function getStatusLabel(statusCode) {
+            switch (statusCode) {
+                case 0: return { label: 'Pending', className: 'status-pending' };
+                case 1: return { label: 'Processing', className: 'status-processing' };
+                case 2: return { label: 'Shipped', className: 'status-shipped' };
+                case 3: return { label: 'Delivered', className: 'status-delivered' };
+                case 4: return { label: 'Cancelled', className: 'status-cancelled' };
+                default: return { label: 'Unknown', className: '' };
+            }
+        }
+
+        // Fetch user's orders
+        async function fetchOrders() {
+            const token = document.cookie.split('=')[1];
+            const response = await fetch('/api/orders', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const orders = await response.json();
+                const orderList = document.getElementById('orderList');
+                orders.forEach(order => {
+                    const { label, className } = getStatusLabel(order.status);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><span class="status-dot ${className}"></span>${order.id}</td>
+                        <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                        <td>${label}</td>
+                        <td>$${order.totalAmount.toFixed(2)}</td>
+                        <td><a href="order-details.html?id=${order.id}" class="btn btn-info">View</a></td>
+                    `;
+                    orderList.appendChild(row);
+                });
+            }
+        }
+
+        window.onload = fetchOrders;
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Your Cart</h2>
+        <div id="cartList" class="row"></div>
+        <div id="cartTotal" class="my-3"></div>
+        <button onclick="proceedToCheckout()" class="btn btn-success">Proceed to Checkout</button>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
+
+        async function fetchCart() {
+            const token = getCookie('token');
+            if (!token) {
+                console.error("Token not found");
+                window.location.href = 'login.html'; 
+                return;
+            }
+
+            const response = await fetch('/api/users/cart', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const cartData = await response.json();
+                const cartList = document.getElementById('cartList');
+                cartList.innerHTML = '';
+                
+                let totalAmount = 0;
+                const cartItems = []; // Array to store items for localStorage
+
+                for (const [productId, quantity] of Object.entries(cartData)) {
+                    const productResponse = await fetch(`/api/products/${productId}`);
+                    if (productResponse.ok) {
+                        const product = await productResponse.json();
+
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'col-md-4';
+                        cartItem.innerHTML = `
+                            <div class="cart-item">
+                                <h5>${product.name}</h5>
+                                <p>Price: $${product.price}</p>
+                                <p>Quantity: ${quantity}</p>
+                                <button onclick="removeFromCart(${product.id})" class="btn btn-danger">Remove</button>
+                            </div>
+                        `;
+                        cartList.appendChild(cartItem);
+
+                        totalAmount += product.price * quantity;
+
+                        // Add item to cartItems array for localStorage
+                        cartItems.push({
+                            productId: product.id,
+                            quantity: quantity
+                        });
+                    }
+                }
+
+                document.getElementById('cartTotal').innerText = `Total: $${totalAmount.toFixed(2)}`;
+
+                // Store cart items in localStorage for checkout page
+                localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            }
+        }
+
+        async function removeFromCart(productId) {
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/remove-from-cart/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchCart(); // Refresh cart items
+            }
+        }
+
+        function proceedToCheckout() {
+            window.location.href = 'checkout.html'; // Redirect to checkout page
+        }
+
+        window.onload = fetchCart;
+    </script>
+</body>
+</html>
