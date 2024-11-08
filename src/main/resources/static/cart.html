@@ -8,52 +8,75 @@
     <div class="container mt-5">
         <h2>Your Cart</h2>
         <div id="cartList" class="row"></div>
-        <button onclick="checkout()" class="btn btn-success">Checkout</button>
+        <div id="cartTotal" class="my-3"></div>
+        <button onclick="proceedToCheckout()" class="btn btn-success">Proceed to Checkout</button>
     </div>
 
     <script>
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
+
         async function fetchCart() {
+            const token = getCookie('token');
+            if (!token) {
+                console.error("Token not found");
+                window.location.href = 'login.html'; 
+                return;
+            }
+
             const response = await fetch('/api/users/cart', {
-                headers: {
-                    Authorization: `Bearer ${document.cookie.split('=')[1]}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             });
             if (response.ok) {
-                const cartItems = await response.json();
+                const cartData = await response.json();
                 const cartList = document.getElementById('cartList');
                 cartList.innerHTML = '';
-                cartItems.forEach(item => {
-                    const cartItem = document.createElement('div');
-                    cartItem.className = 'col-md-4';
-                    cartItem.innerHTML = `
-                        <div class="cart-item">
-                            <h5>${item.product.name}</h5>
-                            <p>Price: $${item.product.price}</p>
-                            <p>Quantity: ${item.quantity}</p>
-                            <button onclick="removeFromCart(${item.product.id})" class="btn btn-danger">Remove</button>
-                        </div>
-                    `;
-                    cartList.appendChild(cartItem);
-                });
+                
+                let totalAmount = 0;
+
+                for (const [productId, quantity] of Object.entries(cartData)) {
+                    const productResponse = await fetch(`/api/products/${productId}`); // Assumes an endpoint to get product details
+                    if (productResponse.ok) {
+                        const product = await productResponse.json();
+
+                        const cartItem = document.createElement('div');
+                        cartItem.className = 'col-md-4';
+                        cartItem.innerHTML = `
+                            <div class="cart-item">
+                                <h5>${product.name}</h5>
+                                <p>Price: $${product.price}</p>
+                                <p>Quantity: ${quantity}</p>
+                                <button onclick="removeFromCart(${product.id})" class="btn btn-danger">Remove</button>
+                            </div>
+                        `;
+                        cartList.appendChild(cartItem);
+
+                        totalAmount += product.price * quantity; // Calculate total cost
+                    }
+                }
+
+                document.getElementById('cartTotal').innerText = `Total: $${totalAmount.toFixed(2)}`;
             }
         }
 
         async function removeFromCart(productId) {
-            const response = await fetch(`/api/users/remove-from-cart`, {
-                method: 'POST',
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/remove-from-cart/${productId}`, {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId })
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
             });
             if (response.ok) {
                 fetchCart(); // Refresh cart items
             }
         }
 
-        async function checkout() {
-            // Implement checkout logic here
-            alert("Checkout functionality coming soon!");
+        function proceedToCheckout() {
+            window.location.href = 'checkout.html'; // Redirect to checkout page
         }
 
         window.onload = fetchCart;

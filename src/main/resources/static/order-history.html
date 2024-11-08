@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order History</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Order History</h2>
+        <div id="orderHistoryList" class="row"></div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
+
+        async function fetchOrderHistory() {
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/order-history`, {  // Endpoint for order history
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const orders = await response.json();
+                const orderHistoryList = document.getElementById('orderHistoryList');
+                orderHistoryList.innerHTML = '';
+
+                orders.forEach(order => {
+                    const orderItem = document.createElement('div');
+                    orderItem.className = 'col-md-12';
+                    orderItem.innerHTML = `
+                        <div class="order-item">
+                            <h5>Order ID: ${order.id}</h5>
+                            <p>Status: ${order.status}</p>
+                            <p>Total Amount: $${order.totalAmount}</p>
+                            <hr>
+                        </div>
+                    `;
+                    orderHistoryList.appendChild(orderItem);
+                });
+            }
+        }
+
+        window.onload = fetchOrderHistory;
+    </script>
+</body>
+</html>

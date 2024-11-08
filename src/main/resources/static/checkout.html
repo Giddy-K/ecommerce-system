@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Checkout</h2>
+        <form id="paymentForm" onsubmit="processPayment(event)">
+            <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input type="text" class="form-control" id="cardNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="billingAddress">Billing Address</label>
+                <input type="text" class="form-control" id="billingAddress" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Confirm Order</button>
+        </form>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : null;
+        }
+
+        async function processPayment(event) {
+            event.preventDefault();
+
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/order`, {  // Adjusted endpoint for placing an order
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    cardNumber: document.getElementById('cardNumber').value,
+                    billingAddress: document.getElementById('billingAddress').value
+                })
+            });
+
+            if (response.ok) {
+                alert("Order confirmed! Thank you for your purchase.");
+                window.location.href = 'order-history.html'; // Redirect to order history page
+            } else {
+                alert("Payment failed. Please check your details and try again.");
+            }
+        }
+    </script>
+</body>
+</html>

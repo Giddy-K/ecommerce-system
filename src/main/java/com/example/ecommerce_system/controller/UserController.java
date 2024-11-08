@@ -200,7 +200,21 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
     }
-    
+
+    @GetMapping("/cart")
+    public ResponseEntity<?> getCartItems(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            List<Long> cart = user.get().getCart(); // Assuming cart is a list of product IDs
+            Map<Long, Integer> cartItems = new HashMap<>();
+            for (Long productId : cart) {
+                cartItems.put(productId, cartItems.getOrDefault(productId, 0) + 1);
+            }
+            return ResponseEntity.ok(cartItems); // Return the cart as a map of product IDs and quantities
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+    }
+
     @DeleteMapping("/remove-from-cart/{productId}")
     public ResponseEntity<?> removeFromCart(@PathVariable Long productId,
             @RequestHeader("Authorization") String token) {

@@ -114,6 +114,11 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    // public Optional<User> getUserFromToken(String token) {
+    //     String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+    //     return userRepository.findByEmail(email);
+    // }
+
     public Long extractUserId(String token) {
         String email = jwtUtil.extractEmail(token);
         Optional<User> user = userRepository.findByEmail(email);
@@ -124,6 +129,8 @@ public class UserService {
         user.getCart().add(productId); // Assuming cart is a List<Long> in User model
         userRepository.save(user);
     }
+
+
 
     public void removeFromCart(User user, Long productId) {
         user.getCart().remove(productId); // Assuming cart is a List<Long> in User model
