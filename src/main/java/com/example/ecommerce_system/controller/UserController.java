@@ -125,13 +125,6 @@ public class UserController {
         return ResponseEntity.ok("Logout successful");
     }
 
-    // @GetMapping("/{userId}")
-    // public ResponseEntity<?> getUserById(@PathVariable Long userId) {
-    // Optional<User> user = userService.getUserById(userId);
-    // return user.map(ResponseEntity::ok)
-    // .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    // }
-
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String token) {
         // Assuming the token service can extract userId from the token
@@ -141,15 +134,29 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestBody User user,
-            @RequestHeader("Authorization") String token) {
-        if (isUserAdmin(token)) {
-            userService.updateUser(userId, user);
+    @PutMapping("/me")
+    public ResponseEntity<String> updateUser(@RequestBody User user,
+                                             @RequestHeader("Authorization") String token) {
+        Optional<User> userI = userService.getUserFromToken(token);
+        if (userI.isPresent()) {
+            User authenticatedUser = userI.get();
+    
+            // Update fields on the authenticated user
+            authenticatedUser.setName(user.getName());
+            
+            // Update password if provided in the request
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                authenticatedUser.setPassword(user.getPassword());
+            }
+    
+            // Call the service to update and save the user
+            userService.updateUser(authenticatedUser);
+            
             return ResponseEntity.ok("User updated successfully.");
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Admin access required.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
     }
+    
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId,
@@ -228,18 +235,18 @@ public class UserController {
 
     @PostMapping("/order")
     public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest,
-                                        @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.getUserFromToken(token);
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
         }
         Order order = userService.placeOrder(user.get(), orderRequest);
         if (order.getOrderItems().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order contains invalid or unavailable products.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Order contains invalid or unavailable products.");
         }
         return ResponseEntity.ok(order);
     }
-    
 
     @GetMapping("/orders/me")
     public ResponseEntity<?> getUserOrders(@RequestHeader("Authorization") String token) {

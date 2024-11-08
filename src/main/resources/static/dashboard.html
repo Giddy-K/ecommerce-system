@@ -44,9 +44,9 @@
         </nav>
 
         <div class="row mt-4">
-            <div class="col-md-4">
+            <div class="col-md-12">
                 <h3>Featured Products</h3>
-                <div id="productList"></div>
+                <div class="row" id="productList"></div>
             </div>
         </div>
     </div>
@@ -95,9 +95,10 @@
             if (response.ok) {
                 const products = await response.json();
                 const productList = document.getElementById('productList');
+                
                 products.forEach(product => {
                     const productCard = document.createElement('div');
-                    productCard.className = 'col-md-4 mb-4';
+                    productCard.className = 'col-md-4 mb-4';  // Column layout inside the row
                     productCard.innerHTML = `
                         <div class="card">
                             <img src="${product.imageUrl}" class="card-img-top" alt="${product.name}">
@@ -113,6 +114,7 @@
                 });
             }
         }
+        
 
         async function fetchCartItems() {
             const token = getCookie('token');

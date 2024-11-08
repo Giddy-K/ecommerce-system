@@ -69,12 +69,27 @@ public class UserService {
         return Optional.empty(); // Invalid credentials
     }
 
-    public void updateUser(Long userId, User user) {
-        user.setId(userId);
-        user.setRole(User.Role.CUSTOMER); // Automatically assign the CUSTOMER role
-        user.setPassword(hashPassword(user.getPassword())); // Hash the password
-        userRepository.save(user);
+    public void updateUser(User updatedUser) {
+        // Fetch the existing user from the database
+        Optional<User> existingUserOpt = userRepository.findById(updatedUser.getId());
+        
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+    
+            // Update only the necessary fields
+            existingUser.setName(updatedUser.getName());
+            existingUser.setRole(User.Role.CUSTOMER); // Keep the role as CUSTOMER
+    
+            // Update the password only if it's provided in the request
+            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                existingUser.setPassword(hashPassword(updatedUser.getPassword())); // Hash the password
+            }
+    
+            // Save the updated user
+            userRepository.save(existingUser);
+        }
     }
+    
 
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);

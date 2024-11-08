@@ -9,7 +9,22 @@
 <body>
     <div class="container mt-5">
         <h2>Profile</h2>
-        <form id="profileForm">
+        
+        <!-- Display Section -->
+        <div id="displaySection">
+            <p><strong>Name:</strong> <span id="displayName"></span></p>
+            <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+            <p><strong>Upcoming Features:</strong></p>
+            <ul>
+                <li>AOB</li>
+                <li>Wishlist</li>
+                <li>Payment Methods</li>
+            </ul>
+            <button id="editButton" class="btn btn-secondary">Edit Profile</button>
+        </div>
+
+        <!-- Form Section -->
+        <form id="profileForm" style="display: none;">
             <div class="form-group">
                 <label for="name">Name:</label>
                 <input type="text" class="form-control" id="name" required>
@@ -23,18 +38,24 @@
                 <input type="password" class="form-control" id="password">
             </div>
             <button type="submit" class="btn btn-primary">Update Profile</button>
+            <button type="button" id="cancelButton" class="btn btn-secondary">Cancel</button>
         </form>
         <div id="message" class="mt-3"></div>
     </div>
 
     <script>
-
         function getCookie(name) {
             const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             return match ? match[2] : null;
         }
-        
-       // Fetch user profile
+
+        // Toggle between display and edit mode
+        function toggleEditMode(showEdit) {
+            document.getElementById('displaySection').style.display = showEdit ? 'none' : 'block';
+            document.getElementById('profileForm').style.display = showEdit ? 'block' : 'none';
+        }
+
+        // Fetch user profile
         async function fetchUserProfile() {
             const token = getCookie('token');
             if (!token) {
@@ -49,13 +70,14 @@
                 });
                 if (response.ok) {
                     const user = await response.json();
-                    console.log(user);
+                    document.getElementById('displayName').textContent = user.name;
+                    document.getElementById('displayEmail').textContent = user.email;
                     document.getElementById('name').value = user.name;
                     document.getElementById('email').value = user.email;
                 } else {
                     console.error("Failed to fetch user info", response.statusText);
                     if (response.status === 401) {
-                        window.location.href = 'login.html'; // redirect to login if unauthorized
+                        window.location.href = 'login.html';
                     }
                 }
             } catch (error) {
@@ -66,27 +88,45 @@
         // Handle profile update
         document.getElementById('profileForm').addEventListener('submit', async (event) => {
             event.preventDefault();
+        
             const name = document.getElementById('name').value;
             const password = document.getElementById('password').value;
-            const token = document.cookie.split('=')[1];
-
-            const response = await fetch('/api/users/update', {
-                method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ name, password })
-            });
-
-            if (response.ok) {
-                document.getElementById('message').textContent = 'Profile updated successfully!';
-            } else {
-                const error = await response.text();
-                document.getElementById('message').textContent = `Error: ${error}`;
+            const token = getCookie('token');
+            
+            try {
+                const response = await fetch(`/api/users/me`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ name, password })
+                });
+        
+                if (response.ok) {
+                    document.getElementById('message').textContent = 'Profile updated successfully!';
+                    toggleEditMode(false); // Exit edit mode
+                    fetchUserProfile(); // Refresh displayed data
+                } else {
+                    const error = await response.text();
+                    document.getElementById('message').textContent = `Error: ${error}`;
+                }
+            } catch (error) {
+                document.getElementById('message').textContent = `Request failed: ${error.message}`;
             }
         });
 
+        // Toggle to edit mode on clicking "Edit Profile"
+        document.getElementById('editButton').addEventListener('click', () => {
+            toggleEditMode(true);
+        });
+
+        // Cancel editing and revert to display mode
+        document.getElementById('cancelButton').addEventListener('click', () => {
+            toggleEditMode(false);
+        });
+
+        // Load user data on page load
         window.onload = fetchUserProfile;
     </script>
 </body>
