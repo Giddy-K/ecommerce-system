@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap; // Add this import
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map; // Add this import
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,14 +30,15 @@ public class UserService {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private OrderRepository orderRepository; // To manage user orders
+    private OrderRepository orderRepository;
 
     @Autowired
     private ProductRepository productRepository;
 
-    // Use a HashMap to store reset tokens and associated user IDs
+    // Using a HashMap to store reset tokens and associated user IDs
     private final Map<String, Long> resetTokens = new HashMap<>();
 
+    //hash password functtion [TODO]
     public String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -63,7 +64,7 @@ public class UserService {
         if (user.isPresent()) {
             String hashedPassword = hashPassword(password);
             if (user.get().getPassword().equals(hashedPassword)) {
-                return user; // Authentication successful
+                return user; // If authentication is successful
             }
         }
         return Optional.empty(); // Invalid credentials
@@ -78,7 +79,7 @@ public class UserService {
     
             // Update only the necessary fields
             existingUser.setName(updatedUser.getName());
-            existingUser.setRole(User.Role.CUSTOMER); // Keep the role as CUSTOMER
+            existingUser.setRole(User.Role.CUSTOMER); // Keep the role as CUSTOMER [TODO]
     
             // Update the password only if it's provided in the request
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
@@ -89,7 +90,6 @@ public class UserService {
             userRepository.save(existingUser);
         }
     }
-    
 
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
@@ -130,11 +130,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    // public Optional<User> getUserFromToken(String token) {
-    // String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
-    // return userRepository.findByEmail(email);
-    // }
-
     public Long extractUserId(String token) {
         String email = jwtUtil.extractEmail(token);
         Optional<User> user = userRepository.findByEmail(email);
@@ -142,41 +137,30 @@ public class UserService {
     }
 
     public void addToCart(User user, Long productId) {
-        user.getCart().add(productId); // Assuming cart is a List<Long> in User model
-        userRepository.save(user);
+        Map<Long, Integer> cartItems = user.getCart();  // Get the cart (Map<Long, Integer>)
+        cartItems.put(productId, cartItems.getOrDefault(productId, 0) + 1);  // Add item or update quantity
+        userRepository.save(user);  // Save the updated user
     }
 
     public void removeFromCart(User user, Long productId) {
-        user.getCart().remove(productId); // Assuming cart is a List<Long> in User model
-        userRepository.save(user);
+        Map<Long, Integer> cartItems = user.getCart();  // Get the cart (Map<Long, Integer>)
+        cartItems.remove(productId);  // Remove the item from the cart
+        userRepository.save(user);  // Save the updated user
     }
-
-    public List<Order> getUserOrders(Long userId) {
-        return orderRepository.findByUserId(userId); // Assuming Order has a userId field
+    
+    public boolean updateCartQuantity(User user, Long productId, int quantityChange) {
+        Map<Long, Integer> cartItems = user.getCart();  // Assuming user.getCart() returns Map<Long, Integer>
+        int currentQuantity = cartItems.getOrDefault(productId, 0);
+        
+        if (currentQuantity + quantityChange <= 0) {
+            cartItems.remove(productId);  // Remove the product if quantity becomes 0 or negative
+            userRepository.save(user);  // Save the updated user
+            return true; // Indicating the item was removed
+        } else {
+            cartItems.put(productId, currentQuantity + quantityChange);  // Update the quantity of the product
+            userRepository.save(user);  // Save the updated user
+            return false; // Indicating the item quantity was updated
+        }
     }
-
-    public Order placeOrder(User user, OrderRequest orderRequest) {
-        Order order = new Order();
-        order.setUser(user);
-
-        List<OrderItem> items = orderRequest.getOrderItems().stream()
-                .map(itemRequest -> {
-                    Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
-                    if (product != null) {
-                        OrderItem orderItem = new OrderItem();
-                        orderItem.setProduct(product);
-                        orderItem.setQuantity(itemRequest.getQuantity());
-                        orderItem.setPrice(product.getPrice() * itemRequest.getQuantity()); // Calculate price
-                        orderItem.setOrder(order); // Link back to order
-                        return orderItem;
-                    }
-                    return null;
-                })
-                .filter(item -> item != null) // Ensure no null items
-                .collect(Collectors.toList());
-
-        order.setOrderItems(items);
-        order.setTotalAmount(items.stream().mapToDouble(OrderItem::getPrice).sum()); // Calculate total amount
-        return orderRepository.save(order);
-    }
+    
 }

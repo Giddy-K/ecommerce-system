@@ -1,5 +1,6 @@
 package com.example.ecommerce_system.controller;
 
+import com.example.ecommerce_system.dto.OrderRequest;
 import com.example.ecommerce_system.dto.OrderStatusUpdateRequest;
 import com.example.ecommerce_system.model.Order;
 import com.example.ecommerce_system.model.User;
@@ -23,12 +24,34 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
+    // PLACE AN ORDER
     @PostMapping("/place")
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        Order createdOrder = orderService.createOrder(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest orderRequest,
+            @RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+        }
+        Order order = orderService.placeOrder(user.get(), orderRequest);
+        if (order.getOrderItems().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Order contains invalid or unavailable products.");
+        }
+        return ResponseEntity.ok(order);
     }
 
+    // GET THE USERS ORDERS
+    @GetMapping("/me")
+    public ResponseEntity<?> getUserOrders(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.getUserFromToken(token);
+        if (user.isPresent()) {
+            List<Order> orders = orderService.getUserOrders(user.get().getId());
+            return ResponseEntity.ok(orders);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+    }
+
+    //GET A SPECIFIC ORDER WITH DETAILS
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id)
@@ -36,20 +59,14 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getOrdersByUserId(@PathVariable Long userId) {
-        Optional<User> user = userService.getUserById(userId); // Ensure this returns Optional<User>
-        return user.map(u -> ResponseEntity.ok(orderService.getOrdersByUserId(u.getId()))) // Pass user ID
-                    .orElse(ResponseEntity.notFound().build());
-    }
-    
-
+    //GET ALL THE ORDERS
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         List<Order> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
+    //UPDATE ORDER STATUS
     @PutMapping("/{orderId}/status")
     public ResponseEntity<String> updateOrderStatus(
             @PathVariable Long orderId,
@@ -66,6 +83,7 @@ public class OrderController {
         }
     }
 
+    //DELETE AN ORDER
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

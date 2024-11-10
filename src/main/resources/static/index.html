@@ -38,14 +38,115 @@
             </nav>
         </div>
 
-        <!-- Brief Description Section -->
+        <!-- Full Description Section -->
         <div class="container mt-4">
+            <h2>About Our E-commerce Platform</h2>
             <p>
-                Welcome to our E-commerce System, designed to offer a seamless
-                shopping experience. Explore a wide range of products across
-                various categories, with secure checkout and efficient customer
-                service. Our platform ensures an engaging, user-friendly
-                experience tailored for all your shopping needs.
+                Welcome to our comprehensive E-commerce System, crafted to
+                deliver an exceptional and user-centric shopping experience.
+                This platform is designed to meet the needs of a diverse
+                audience, offering a wide variety of products across categories,
+                from electronics and fashion to home goods and essentials. Our
+                mission is to create an online marketplace that combines
+                convenience, quality, and trustworthiness for a seamless
+                shopping journey.
+            </p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Wide Product Selection:</strong> Discover an
+                    extensive catalog of products, carefully categorized for
+                    easy browsing. Our inventory is updated frequently to
+                    provide you with the latest trends and essential items.</li>
+                <li><strong>User-Friendly Interface:</strong> Navigate
+                    effortlessly through our clean, intuitive layout that
+                    provides easy access to product details, categories, and
+                    personal account settings.</li>
+                <li><strong>Advanced Search and Filter:</strong> Use our
+                    powerful search function and filters to find exactly what
+                    you’re looking for. Filter by category, price, rating, and
+                    other criteria to streamline your shopping experience.</li>
+                <li><strong>Product Reviews and Ratings:</strong> View authentic
+                    reviews and ratings from verified buyers to make informed
+                    purchasing decisions, and contribute your own feedback
+                    post-purchase.</li>
+                <li><strong>Secure Checkout Process:</strong> We prioritize your
+                    security with multiple payment options, secure encryption,
+                    and data protection throughout the transaction process.</li>
+            </ul>
+
+            <h3>Customer Account and Personalization</h3>
+            <p>
+                Each user can create a personalized account where they can
+                manage their orders, view purchase history, save items to their
+                wishlist, and receive tailored recommendations based on browsing
+                and purchase behavior. Our platform also offers a seamless login
+                experience and account security features such as two-factor
+                authentication and password recovery options.
+            </p>
+
+            <h3>Shopping Cart and Order Tracking</h3>
+            <p>
+                Our shopping cart functionality allows customers to add products
+                as they browse, with options to update quantities or remove
+                items. Once ready, users can proceed to checkout with a single
+                click, and receive real-time order tracking updates until
+                delivery.
+            </p>
+
+            <h3>Admin Dashboard</h3>
+            <p>
+                For administrators, we provide a comprehensive dashboard that
+                enables efficient management of products, orders, and customer
+                information. The admin can add new products, update inventory
+                levels, monitor sales analytics, and manage customer feedback.
+                Additionally, administrators can view sales performance metrics,
+                track inventory turnover, and access insightful data for making
+                strategic business decisions.
+            </p>
+
+            <h3>Customer Service and Support</h3>
+            <p>
+                Our dedicated customer support team is available to assist with
+                any inquiries, from product questions to order issues. Customers
+                can contact support directly through the platform or by using
+                our hotline and email options. We prioritize prompt and helpful
+                responses to ensure a positive experience at every stage of the
+                shopping journey.
+            </p>
+
+            <h3>Privacy and Security</h3>
+            <p>
+                We take privacy and security very seriously. Our platform is
+                equipped with the latest encryption technologies and security
+                protocols to protect user data. From secure login methods to
+                transaction security and GDPR compliance, we strive to provide a
+                safe online shopping environment for all users.
+            </p>
+
+            <h3>Additional Benefits</h3>
+            <ul>
+                <li><strong>Exclusive Offers and Discounts:</strong> Enjoy
+                    seasonal sales, promotional discounts, and loyalty rewards
+                    designed to maximize value for our regular shoppers.</li>
+                <li><strong>Fast and Reliable Shipping:</strong> We partner with
+                    trusted delivery providers to offer a range of shipping
+                    options, including express delivery and international
+                    shipping, to get your items to you as quickly as
+                    possible.</li>
+                <li><strong>Environmentally Conscious:</strong> We are committed
+                    to sustainability, using eco-friendly packaging materials
+                    and promoting green business practices whenever
+                    possible.</li>
+            </ul>
+
+            <p>
+                Thank you for choosing our E-commerce System as your preferred
+                online shopping destination. We look forward to providing you
+                with an enjoyable and reliable shopping experience that meets
+                your needs and exceeds your expectations. Explore our catalog
+                today and let us be part of your journey to convenient and
+                rewarding shopping!
             </p>
         </div>
 
@@ -61,60 +162,60 @@
 
         <!-- Script for Authentication Check and Redirect -->
         <script>
-        // Function to decode JWT token and check expiration
-function decodeToken(token) {
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-        const isTokenExpired = Date.now() >= payload.exp * 1000; // Check if expired
-        return isTokenExpired ? null : payload; // Return decoded payload if not expired
-    } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-    }
-}
-
-const token = document.cookie.split('; ').find(row => row.startsWith('token='));  // Changed from 'JWT=' to 'token='
-const loginButton = document.getElementById('loginButton');
-const signupButton = document.getElementById('signupButton');
-const logoutButton = document.getElementById('logoutButton');
-const welcomeMessage = document.getElementById('welcomeMessage');
-
-// Function to check user authentication and redirect accordingly
-function checkUserAuth() {
-    if (token) {
-        const actualToken = token.split('=')[1];
-        const decodedToken = decodeToken(actualToken);
-
-        if (decodedToken) {
-            // Token is valid, redirect to the dashboard or admin page based on role
-            if (decodedToken.role === 'ADMIN') {
-                window.location.href = 'admin.html'; // Redirect to admin page
-            } else {
-                window.location.href = 'dashboard.html'; // Redirect to user dashboard
+        function decodeToken(token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const isTokenExpired = Date.now() >= payload.exp * 1000;
+                return isTokenExpired ? null : payload;
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                return null;
             }
-        } else {
-            // Token is expired, clear the cookie and show login/signup options
-            document.cookie = 'token=; Max-Age=0; Path=/;';
-            loginButton.classList.remove('d-none');
-            signupButton.classList.remove('d-none');
-            logoutButton.classList.add('d-none');
         }
-    } else {
-        // No token, show login/signup options
-        loginButton.classList.remove('d-none');
-        signupButton.classList.remove('d-none');
-        logoutButton.classList.add('d-none');
-    }
-}
 
-// Initial check for user authentication
-checkUserAuth();
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+        const loginButton = document.getElementById('loginButton');
+        const signupButton = document.getElementById('signupButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const welcomeMessage = document.getElementById('welcomeMessage');
 
-// Event listener for logout
-logoutButton.addEventListener('click', () => {
-    document.cookie = 'token=; Max-Age=0; Path=/;';  // Clear JWT cookie
-    window.location.reload(); // Refresh the page to update UI
-});
+        function checkUserAuth() {
+            if (token) {
+                const actualToken = token.split('=')[1];
+                const decodedToken = decodeToken(actualToken);
+
+                if (decodedToken) {
+                    if (decodedToken.role === 'ADMIN') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    document.cookie = 'token=; Max-Age=0; Path=/;';
+                    loginButton.classList.remove('d-none');
+                    signupButton.classList.remove('d-none');
+                    logoutButton.classList.add('d-none');
+                }
+            } else {
+                loginButton.classList.remove('d-none');
+                signupButton.classList.remove('d-none');
+                logoutButton.classList.add('d-none');
+            }
+        }
+
+        checkUserAuth();
+
+        logoutButton.addEventListener('click', () => {
+            document.cookie = 'token=; Max-Age=0; Path=/;';
+            window.location.reload();
+        });
     </script>
+
+        <!-- Required Scripts for Bootstrap Toggle to Work -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     </body>
 </html>
