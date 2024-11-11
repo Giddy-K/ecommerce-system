@@ -10,6 +10,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     
     // This method is provided by JpaRepository to get all users
+    @SuppressWarnings("null")
     @Override
     List<User> findAll(); 
 }

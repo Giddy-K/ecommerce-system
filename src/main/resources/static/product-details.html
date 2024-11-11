@@ -6,6 +6,29 @@
         <title>Product Details</title>
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+        /* Styling for star rating */
+        .star {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ddd; /* Default color for unselected stars */
+        }
+        .star.selected {
+            color: #ffc107; /* Yellow color for selected stars */
+        }
+
+        /* Style for blurred comments */
+        .comment-blurred {
+            color: #aaa;
+            filter: blur(3px);
+            cursor: pointer;
+        }
+
+        /* Style for showing the full comment */
+        .comment-visible {
+            filter: none;
+        }
+    </style>
     </head>
     <body>
         <div class="container mt-5">
@@ -21,6 +44,32 @@
                     <p><strong>$<span id="productPrice"></span></strong></p>
                     <button class="btn btn-primary" id="addToCartBtn">Add to
                         Cart</button>
+
+                    <!-- Rating Section -->
+                    <div class="mt-4">
+                        <h4>Rate this Product</h4>
+                        <div id="starRating">
+                            <!-- Render stars here -->
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <textarea id="comment" class="form-control mt-2"
+                            placeholder="Leave a comment"></textarea>
+                        <button class="btn btn-success mt-2"
+                            id="submitRatingBtn">Submit Rating</button>
+                    </div>
+
+                    <!-- Display Ratings -->
+                    <div id="ratingsSection" class="mt-4">
+                        <h4>Product Ratings</h4>
+                        <div id="averageRating"></div>
+                        <ul id="ratingsList" class="list-unstyled">
+                            <!-- Ratings will be injected here -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,22 +81,7 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
-
-// Fetch product details
-async function fetchProductDetails() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-    const response = await fetch(`/api/products/${productId}`);
-    if (response.ok) {
-        const product = await response.json();
-        document.getElementById('productImage').src = product.imageUrl;
-        document.getElementById('productName').textContent = product.name;
-        document.getElementById('productDescription').textContent = product.description;
-        document.getElementById('productPrice').textContent = product.price;
-    }
-}
-
-// Add product to cart
+        // Add product to cart
 document.getElementById('addToCartBtn').addEventListener('click', async () => {
     const token = localStorage.getItem('jwtToken'); // Retrieve token from localStorage
     const urlParams = new URLSearchParams(window.location.search);
@@ -74,15 +108,140 @@ document.getElementById('addToCartBtn').addEventListener('click', async () => {
 
     if (response.ok) {
         alert('Product added to cart!');
+        window.location.href = 'dashboard.html';
     } else {
         const errorData = await response.json();
         alert(`Failed to add product to cart. ${errorData.message || errorData.error}`);
     }
 });
+        let selectedRating = 0;
 
-// Load product details on page load
-window.onload = fetchProductDetails;
+        // Handle star rating selection
+        const stars = document.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-value'));
+                updateStarRatingDisplay(selectedRating);
+            });
+        });
 
+        // Function to update star colors based on selected rating
+        function updateStarRatingDisplay(rating) {
+            stars.forEach(star => {
+                star.classList.toggle('selected', parseInt(star.getAttribute('data-value')) <= rating);
+            });
+        }
+
+        // Submit Rating
+        document.getElementById('submitRatingBtn').addEventListener('click', async () => {
+            const token = localStorage.getItem('jwtToken');
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const comment = document.getElementById('comment').value;
+
+            if (!token) {
+                alert('User not authenticated. Please log in.');
+                return;
+            }
+
+            if (selectedRating === 0) {
+                alert('Please select a rating.');
+                return;
+            }
+
+            const response = await fetch('/api/products/rate-product', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id: productId,
+                    score: selectedRating,
+                    comment: comment
+                })
+            });
+
+            if (response.ok) {
+                alert('Thank you for your rating!');
+                document.getElementById('comment').value = ''; // Clear comment
+                updateStarRatingDisplay(0); // Reset star rating
+                selectedRating = 0;
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                alert(`Failed to submit rating. ${errorData.message || errorData.error}`);
+            }
+        });
+
+        // Load product details on page load
+        async function fetchProductDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const response = await fetch(`/api/products/${productId}`);
+            if (response.ok) {
+                const product = await response.json();
+                document.getElementById('productImage').src = product.imageUrl;
+                document.getElementById('productName').textContent = product.name;
+                document.getElementById('productDescription').textContent = product.description;
+                document.getElementById('productPrice').textContent = product.price;
+            }
+        }
+
+        // Load product ratings
+        async function fetchProductRatings() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            const response = await fetch(`/api/products/${productId}/ratings`);
+            if (response.ok) {
+                const data = await response.json();
+                const averageRating = data.averageRating;
+                const ratings = data.ratings;
+
+                // Display average rating
+                document.getElementById('averageRating').textContent = `Average Rating: ${averageRating.toFixed(1)}/5`;
+
+                // Display individual ratings
+                const ratingsList = document.getElementById('ratingsList');
+                ratingsList.innerHTML = ''; // Clear previous ratings
+
+                ratings.forEach((rating, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('mb-2');
+
+                    // Create star ratings for each user
+                    let starsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        starsHtml += `<span class="star ${i <= rating.score ? 'selected' : ''}">★</span>`;
+                    }
+
+                    // Create the comment section with first comment visible and others blurred
+                    let commentHtml = rating.comment;
+                    if (index > 0) {
+                        commentHtml = `<span class="comment-blurred" onclick="revealComment(this)">${rating.comment}</span>`;
+                    }
+
+                    listItem.innerHTML = `
+                        <div>${starsHtml}</div>
+                        <p><strong>${rating.user.name}</strong> (${rating.user.email})</p>
+                        <p>${commentHtml}</p>
+                    `;
+                    ratingsList.appendChild(listItem);
+                });
+            }
+        }
+
+        // Reveal the comment when clicked
+        function revealComment(commentElement) {
+            commentElement.classList.remove('comment-blurred');
+            commentElement.classList.add('comment-visible');
+        }
+
+        // Load product details and ratings on page load
+        window.onload = function() {
+            fetchProductDetails();
+            fetchProductRatings();
+        };
     </script>
     </body>
 </html>

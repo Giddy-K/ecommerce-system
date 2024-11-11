@@ -49,7 +49,9 @@
                             <div class="cart-item">
                                 <h5>${product.name}</h5>
                                 <p>Price: $${product.price}</p>
-                                <p>Quantity: ${quantity}</p>
+                                <p>Quantity: <span id="quantity-${product.id}">${quantity}</span></p>
+                                <button onclick="decreaseQuantity(${product.id})" class="btn btn-secondary btn-sm">-</button>
+                                <button onclick="increaseQuantity(${product.id})" class="btn btn-secondary btn-sm">+</button>
                                 <button onclick="removeFromCart(${product.id})" class="btn btn-danger">Remove</button>
                             </div>
                         `;
@@ -80,6 +82,35 @@
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
+            });
+            if (response.ok) {
+                fetchCart(); // Refresh cart items
+            }
+        }
+
+        async function increaseQuantity(productId) {
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/add-to-cart/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                fetchCart(); // Refresh cart items
+            }
+        }
+
+        async function decreaseQuantity(productId) {
+            const token = getCookie('token');
+            const response = await fetch(`/api/users/update-cart/${productId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ quantity: -1 })
             });
             if (response.ok) {
                 fetchCart(); // Refresh cart items

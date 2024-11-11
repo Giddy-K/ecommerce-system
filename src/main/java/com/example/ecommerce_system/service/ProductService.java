@@ -57,6 +57,7 @@ public class ProductService {
     public List<Product> searchProducts(String name) {
         return productRepository.findByNameContaining(name);
     }
+    
 
     // The new rateProduct method
     public void rateProduct(Long productId, Long userId, int scoreValue, String comment) {

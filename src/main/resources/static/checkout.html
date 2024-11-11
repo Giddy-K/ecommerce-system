@@ -54,7 +54,7 @@
             console.log("Order Request Payload:", JSON.stringify(orderRequest)); // Log request body
         
             try {
-                const response = await fetch(`/api/users/order`, {
+                const response = await fetch(`/api/orders/place`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

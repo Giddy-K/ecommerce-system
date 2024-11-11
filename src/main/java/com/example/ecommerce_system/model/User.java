@@ -3,7 +3,9 @@ package com.example.ecommerce_system.model;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -29,7 +31,10 @@ public class User {
     private List<Order> orders;
 
     @ElementCollection
-    private List<Long> cart; // Store product IDs in the cart
+    @CollectionTable(name = "user_cart", joinColumns = @JoinColumn(name = "user_id"))
+    @MapKeyColumn(name = "product_id")
+    @Column(name = "quantity")
+    private Map<Long, Integer> cart = new HashMap<>();
 
     // Constructors, Getters, and Setters
     public User() {}
@@ -90,11 +95,11 @@ public class User {
         this.orders = orders;
     }
 
-    public List<Long> getCart() {
+    public Map<Long, Integer> getCart() {
         return cart;
     }
 
-    public void setCart(List<Long> cart) {
+    public void setCart(Map<Long, Integer> cart) {
         this.cart = cart;
     }
 
