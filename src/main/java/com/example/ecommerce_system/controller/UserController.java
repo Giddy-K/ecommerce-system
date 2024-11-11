@@ -1,7 +1,5 @@
 package com.example.ecommerce_system.controller;
 
-import com.example.ecommerce_system.dto.OrderRequest;
-import com.example.ecommerce_system.model.Order;
 import com.example.ecommerce_system.model.User;
 import com.example.ecommerce_system.service.UserService;
 import com.example.ecommerce_system.util.JwtUtil;

@@ -1,12 +1,6 @@
 package com.example.ecommerce_system.service;
 
-import com.example.ecommerce_system.dto.OrderRequest;
-import com.example.ecommerce_system.model.Order;
-import com.example.ecommerce_system.model.OrderItem;
-import com.example.ecommerce_system.model.Product;
 import com.example.ecommerce_system.model.User;
-import com.example.ecommerce_system.repository.OrderRepository;
-import com.example.ecommerce_system.repository.ProductRepository;
 import com.example.ecommerce_system.repository.UserRepository;
 import com.example.ecommerce_system.util.JwtUtil;
 
@@ -19,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -28,12 +21,6 @@ public class UserService {
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
 
     // Using a HashMap to store reset tokens and associated user IDs
     private final Map<String, Long> resetTokens = new HashMap<>();
