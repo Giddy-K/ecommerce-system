@@ -68,6 +68,7 @@ public class UserController {
                 responseBody.put("username", user.get().getName());
                 responseBody.put("token", token); // Return the token
                 responseBody.put("role", user.get().getRole().toString()); // Include user role
+                responseBody.put("userId", user.get().getId().toString());
                 return ResponseEntity.ok(responseBody);
             }
 
