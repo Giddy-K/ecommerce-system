@@ -74,7 +74,10 @@ public class OrderController {
         // Save the order to the database
         orderRepository.save(order);
 
-        return ResponseEntity.ok("Order placed successfully");
+        // Clear the user's cart after placing the order
+        userService.clearCart(user.getId());
+
+        return ResponseEntity.ok("Order placed successfully and cart cleared");
     }
 
     // GET THE USERS ORDERS

@@ -149,5 +149,11 @@ public class UserService {
             return false; // Indicating the item quantity was updated
         }
     }
-    
+
+    public void clearCart(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.getCart().clear(); // cart is a map or collection in User model
+        userRepository.save(user); // Save the updated user to persist cart changes
+    }
 }
