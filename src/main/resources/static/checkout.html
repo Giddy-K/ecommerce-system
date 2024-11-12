@@ -30,29 +30,57 @@
             return JSON.parse(localStorage.getItem('cartItems')) || [];
         }
 
+        async function fetchProductPrice(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                if (response.ok) {
+                    const product = await response.json();
+                    return product.price;
+                } else {
+                    console.error(`Failed to fetch price for product ID ${productId}`);
+                    return 0;
+                }
+            } catch (error) {
+                console.error("Error fetching product price:", error);
+                return 0;
+            }
+        }
+
+        async function calculateTotalAmount(cartItems) {
+            let totalAmount = 0;
+            for (const item of cartItems) {
+                const productPrice = await fetchProductPrice(item.productId);
+                totalAmount += productPrice * item.quantity;
+            }
+            return totalAmount;
+        }
+
         async function processPayment(event) {
             event.preventDefault();
-        
+
             const token = getCookie('token');
-            if (!token) {
-                alert("Authorization token not found.");
-                return;
-            }
-        
-            // Retrieve cart items from localStorage
+            const userId = localStorage.getItem('userId');
+            const address = document.getElementById('billingAddress').value;
             const cartItems = getCartItems();
+
             const orderItems = cartItems.map(item => ({
-                productId: item.productId,
-                quantity: item.quantity
+                productId: Number(item.productId),
+                quantity: Number(item.quantity)
             }));
-        
-            // Construct the orderRequest body as expected by the backend
+
+            // Calculate totalAmount once and ensure it's logged correctly
+            const totalAmount = await calculateTotalAmount(cartItems);
+            console.log("Calculated Total Amount:", totalAmount); // Log totalAmount for verification
+
             const orderRequest = {
+                userId: Number(userId),
+                address: address,
+                totalAmount: totalAmount,
                 orderItems: orderItems
             };
-        
+
             console.log("Order Request Payload:", JSON.stringify(orderRequest)); // Log request body
-        
+
             try {
                 const response = await fetch(`/api/orders/place`, {
                     method: 'POST',
@@ -62,14 +90,14 @@
                     },
                     body: JSON.stringify(orderRequest)
                 });
-        
+
                 if (response.ok) {
                     alert("Order confirmed! Thank you for your purchase.");
-                    localStorage.removeItem('cartItems');  // Clear cart after placing order
-                    window.location.href = 'order-history.html'; // Redirect to order history page
+                    localStorage.removeItem('cartItems');
+                    window.location.href = 'order-history.html';
                 } else {
-                    const errorMessage = await response.text(); // Capture backend error message
-                    console.error("Order error:", errorMessage); // Log the error from the backend
+                    const errorMessage = await response.text();
+                    console.error("Order error:", errorMessage);
                     alert("Payment failed. Please check your details and try again.");
                 }
             } catch (error) {
@@ -77,7 +105,6 @@
                 alert("An error occurred. Please try again later.");
             }
         }
-        
     </script>
 </body>
 </html>
