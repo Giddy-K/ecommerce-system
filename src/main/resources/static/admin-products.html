@@ -6,8 +6,28 @@
         <title>Manage Products</title>
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+            <style>
+                /* Position the button container at the top right */
+                .back-to-dashboard-container {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10;
+                }
+        
+                .btn-back-to-dashboard {
+                    padding: 8px 16px;
+                    font-size: 0.9rem;
+                }
+            </style>
     </head>
     <body>
+        <!-- Back to Dashboard Button -->
+        <div class="back-to-dashboard-container">
+            <a href="admin.html"
+                class="btn btn-secondary btn-back-to-dashboard">Back to
+                Dashboard</a>
+        </div>
         <div class="container mt-5">
             <h2>Manage Products</h2>
 
@@ -90,11 +110,6 @@
                     class="btn btn-secondary">Cancel</button>
             </form>
 
-            <!-- Back to Dashboard Button -->
-            <div class="text-center">
-                <a href="dashboard.html" class="btn btn-secondary">Back to
-                    Dashboard</a>
-            </div>
         </div>
 
         <script>

@@ -146,24 +146,38 @@
                     height: auto;
                 }
             }
+            /* Position the button container at the top right */
+            .back-to-dashboard-container {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                z-index: 10;
+            }
+    
+            .btn-back-to-dashboard {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
         </style>
     </head>
     <body>
         <!-- Back to Dashboard Button -->
-    <div class="text-center">
-        <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+    <div class="back-to-dashboard-container">
+        <a href="dashboard.html" class="btn btn-secondary btn-back-to-dashboard">Back to Dashboard</a>
     </div>
         <div class="container mt-5 product-details-container">
             <h2>Product Details</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <img id="productImage" class="img-fluid product-image" alt="Product Image">
+                    <img id="productImage" class="img-fluid product-image"
+                        alt="Product Image">
                 </div>
                 <div class="col-md-6">
                     <h3 id="productName"></h3>
                     <p id="productDescription"></p>
                     <p><strong>$<span id="productPrice"></span></strong></p>
-                    <button class="btn-add-to-cart" id="addToCartBtn">Add to Cart</button>
+                    <button class="btn-add-to-cart" id="addToCartBtn">Add to
+                        Cart</button>
 
                     <!-- Rating Section (Hidden if already rated) -->
                     <div id="ratingSection" class="rating-section">
@@ -176,8 +190,10 @@
                             <span class="star" data-value="4">★</span>
                             <span class="star" data-value="5">★</span>
                         </div>
-                        <textarea id="comment" class="form-control mt-2" placeholder="Leave a comment"></textarea>
-                        <button class="btn-custom mt-2" id="submitRatingBtn">Submit Rating</button>
+                        <textarea id="comment" class="form-control mt-2"
+                            placeholder="Leave a comment"></textarea>
+                        <button class="btn-custom mt-2"
+                            id="submitRatingBtn">Submit Rating</button>
                     </div>
 
                     <!-- Display Ratings and Edit Section -->

@@ -24,6 +24,18 @@
             font-size: 2em;
             margin-bottom: 15px;
         }
+         /* Position the button container at the top right */
+         .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .logout {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
     </style>
     </head>
     <body>
@@ -36,7 +48,8 @@
                     <div class="card dashboard-card">
                         <div class="dashboard-icon">📦</div>
                         <h4>Manage Products</h4>
-                        <p>View, add, edit, and delete products as the admin.</p>
+                        <p>View, add, edit, and delete products as the
+                            admin.</p>
                         <a href="admin-products.html" class="btn btn-primary">Go
                             to Products</a>
                     </div>
@@ -77,8 +90,9 @@
                 </div> -->
             </div>
 
-            <div class="mb-3">
-                <button id="logoutButton" class="btn btn-danger">Logout</button>
+            <!-- Back to Dashboard Button -->
+            <div class="logout-container">
+                <a id="logoutButton" class="btn btn-danger logout">Logout</a>
             </div>
         </div>
 

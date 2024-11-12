@@ -253,6 +253,22 @@
     }, 300);
 
     document.getElementById('searchInput').addEventListener('input', debouncedSearch);
+
+    // Debounce function to limit search calls
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Search function to fetch products based on search query
+    function searchProducts() {
+        const query = document.getElementById('searchInput').value.trim();
+        fetchProducts(query);
+    }
+
 </script>
 
 </body>
