@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Analytics Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Analytics Dashboard</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
         .analytics-container {
             margin-top: 50px;
         }
@@ -30,50 +31,54 @@
             font-size: 1.3rem;
         }
     </style>
-</head>
-<body>
-    <div class="container analytics-container">
-        <h2 class="text-center mb-5">Admin Analytics Dashboard</h2>
-        
-        <!-- Sales Reports Section -->
-        <div class="mb-5">
-            <div class="section-header">Sales Reports</div>
-            <div class="card mb-4">
-                <h5 class="card-title">Monthly Sales Overview</h5>
-                <canvas id="salesChart" class="chart"></canvas>
-                <p class="mt-3">View a breakdown of monthly sales to analyze performance trends.</p>
+    </head>
+    <body>
+        <div class="container analytics-container">
+            <h2 class="text-center mb-5">Admin Analytics Dashboard</h2>
+
+            <!-- Sales Reports Section -->
+            <div class="mb-5">
+                <div class="section-header">Sales Reports</div>
+                <div class="card mb-4">
+                    <h5 class="card-title">Monthly Sales Overview</h5>
+                    <canvas id="salesChart" class="chart"></canvas>
+                    <p class="mt-3">View a breakdown of monthly sales to analyze
+                        performance trends.</p>
+                </div>
             </div>
-        </div>
-        
-        <!-- Inventory Levels Section -->
-        <div class="mb-5">
-            <div class="section-header">Inventory Levels</div>
-            <div class="card mb-4">
-                <h5 class="card-title">Product Inventory Status</h5>
-                <canvas id="inventoryChart" class="chart"></canvas>
-                <p class="mt-3">Monitor inventory levels to ensure optimal stock availability.</p>
+
+            <!-- Inventory Levels Section -->
+            <div class="mb-5">
+                <div class="section-header">Inventory Levels</div>
+                <div class="card mb-4">
+                    <h5 class="card-title">Product Inventory Status</h5>
+                    <canvas id="inventoryChart" class="chart"></canvas>
+                    <p class="mt-3">Monitor inventory levels to ensure optimal
+                        stock availability.</p>
+                </div>
             </div>
-        </div>
-        
-        <!-- Customer Insights and Reviews Section -->
-        <div class="mb-5">
-            <div class="section-header">Customer Insights & Reviews</div>
-            <div class="card mb-4">
-                <h5 class="card-title">Customer Feedback Analysis</h5>
-                <canvas id="customerFeedback" class="chart"></canvas>
-                <p class="mt-3">Gain insights into customer feedback and improve user experience.</p>
+
+            <!-- Customer Insights and Reviews Section -->
+            <div class="mb-5">
+                <div class="section-header">Customer Insights & Reviews</div>
+                <div class="card mb-4">
+                    <h5 class="card-title">Customer Feedback Analysis</h5>
+                    <canvas id="customerFeedback" class="chart"></canvas>
+                    <p class="mt-3">Gain insights into customer feedback and
+                        improve user experience.</p>
+                </div>
+            </div>
+
+            <!-- Back to Dashboard Button -->
+            <div class="text-center">
+                <a href="admin.html" class="btn btn-secondary">Back to
+                    Dashboard</a>
             </div>
         </div>
 
-        <!-- Back to Dashboard Button -->
-        <div class="text-center">
-            <a href="admin.html" class="btn btn-secondary">Back to Dashboard</a>
-        </div>
-    </div>
-
-    <!-- JavaScript Libraries for Charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+        <!-- JavaScript Libraries for Charts -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
         // Sample data for charts
         const monthlySalesData = [500, 1000, 750, 1200, 900, 1300, 1100, 1400, 1250, 1500, 1600, 1750];
         const inventoryData = [150, 200, 180, 120, 300, 250, 100];
@@ -142,5 +147,5 @@
             }
         });
     </script>
-</body>
+    </body>
 </html>

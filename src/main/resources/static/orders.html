@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Orders</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
         /* Define dot colors for different order statuses */
         .status-dot {
             height: 10px;
@@ -20,25 +21,30 @@
         .status-delivered { background-color: #00ff3c; }   /* Light green */
         .status-cancelled { background-color: #64393d; }   /* Light pink */
     </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>My Orders</h2>
-        <table class="table table-striped" id="ordersTable">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Order Date</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody id="orderList"></tbody>
-        </table>
-    </div>
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>My Orders</h2>
+            <!-- Back to Dashboard Button -->
+            <div class="text-center">
+                <a href="dashboard.html" class="btn btn-secondary">Back to
+                    Dashboard</a>
+            </div>
+            <table class="table table-striped" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList"></tbody>
+            </table>
+        </div>
 
-    <script>
+        <script>
         // Map status codes to human-readable status labels and CSS classes
         function getStatusLabel(statusCode) {
             switch (statusCode) {
@@ -77,5 +83,5 @@
 
         window.onload = fetchOrders;
     </script>
-</body>
+    </body>
 </html>

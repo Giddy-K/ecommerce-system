@@ -1,81 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Products</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Manage Products</h2>
-        
-        <!-- Product List -->
-        <div id="productList" class="row"></div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manage Products</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>Manage Products</h2>
 
-        <!-- Add New Product Form -->
-        <h3>Add New Product</h3>
-        <form id="addProductForm">
-            <div class="form-group">
-                <label for="addProductName">Product Name:</label>
-                <input type="text" class="form-control" id="addProductName" required>
-            </div>
-            <div class="form-group">
-                <label for="addProductDescription">Description:</label>
-                <input type="text" class="form-control" id="addProductDescription" required>
-            </div>
-            <div class="form-group">
-                <label for="addProductPrice">Price:</label>
-                <input type="number" class="form-control" id="addProductPrice" required>
-            </div>
-            <div class="form-group">
-                <label for="addProductStock">Stock:</label>
-                <input type="number" class="form-control" id="addProductStock" required>
-            </div>
-            <div class="form-group">
-                <label for="addProductImage">Image URL:</label>
-                <input type="text" class="form-control" id="addProductImage" required>
-            </div>
-            <div class="form-group">
-                <label for="addProductCategory">Category:</label>
-                <input type="text" class="form-control" id="addProductCategory" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Product</button>
-        </form>
+            <!-- Product List -->
+            <div id="productList" class="row"></div>
 
-        <!-- Update Product Form -->
-        <h3>Update Product</h3>
-        <form id="updateProductForm" style="display: none;">
-            <div class="form-group">
-                <label for="updateProductName">Product Name:</label>
-                <input type="text" class="form-control" id="updateProductName" required>
-            </div>
-            <div class="form-group">
-                <label for="updateProductDescription">Description:</label>
-                <input type="text" class="form-control" id="updateProductDescription" required>
-            </div>
-            <div class="form-group">
-                <label for="updateProductPrice">Price:</label>
-                <input type="number" class="form-control" id="updateProductPrice" required>
-            </div>
-            <div class="form-group">
-                <label for="updateProductStock">Stock:</label>
-                <input type="number" class="form-control" id="updateProductStock" required>
-            </div>
-            <div class="form-group">
-                <label for="updateProductImage">Image URL:</label>
-                <input type="text" class="form-control" id="updateProductImage" required>
-            </div>
-            <div class="form-group">
-                <label for="updateProductCategory">Category:</label>
-                <input type="text" class="form-control" id="updateProductCategory" required>
-            </div>
-            <button type="submit" class="btn btn-warning">Update Product</button>
-            <button type="button" onclick="cancelUpdate()" class="btn btn-secondary">Cancel</button>
-        </form>
-    </div>
+            <!-- Add New Product Form -->
+            <h3>Add New Product</h3>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="addProductName">Product Name:</label>
+                    <input type="text" class="form-control" id="addProductName"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="addProductDescription">Description:</label>
+                    <input type="text" class="form-control"
+                        id="addProductDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="addProductPrice">Price:</label>
+                    <input type="number" class="form-control"
+                        id="addProductPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="addProductStock">Stock:</label>
+                    <input type="number" class="form-control"
+                        id="addProductStock" required>
+                </div>
+                <div class="form-group">
+                    <label for="addProductImage">Image URL:</label>
+                    <input type="text" class="form-control" id="addProductImage"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="addProductCategory">Category:</label>
+                    <input type="text" class="form-control"
+                        id="addProductCategory" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add
+                    Product</button>
+            </form>
 
-    <script>
+            <!-- Update Product Form -->
+            <h3>Update Product</h3>
+            <form id="updateProductForm" style="display: none;">
+                <div class="form-group">
+                    <label for="updateProductName">Product Name:</label>
+                    <input type="text" class="form-control"
+                        id="updateProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductDescription">Description:</label>
+                    <input type="text" class="form-control"
+                        id="updateProductDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductPrice">Price:</label>
+                    <input type="number" class="form-control"
+                        id="updateProductPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductStock">Stock:</label>
+                    <input type="number" class="form-control"
+                        id="updateProductStock" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductImage">Image URL:</label>
+                    <input type="text" class="form-control"
+                        id="updateProductImage" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductCategory">Category:</label>
+                    <input type="text" class="form-control"
+                        id="updateProductCategory" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Update
+                    Product</button>
+                <button type="button" onclick="cancelUpdate()"
+                    class="btn btn-secondary">Cancel</button>
+            </form>
+
+            <!-- Back to Dashboard Button -->
+            <div class="text-center">
+                <a href="dashboard.html" class="btn btn-secondary">Back to
+                    Dashboard</a>
+            </div>
+        </div>
+
+        <script>
         let currentProductId = null;
 
         // Fetch and display products
@@ -193,5 +215,5 @@
         // Load products on page load
         window.onload = fetchProducts;
     </script>
-</body>
+    </body>
 </html>

@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Orders</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Manage Orders</h2>
-        <div id="orderList" class="row"></div>
-    </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manage Orders</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>Manage Orders</h2>
+            <div id="orderList" class="row"></div>
+        </div>
 
-    <script>
+        <!-- Back to Dashboard Button -->
+        <div class="text-center">
+            <a href="admin.html" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <script>
         // Fetch and display orders
         async function fetchOrders() {
             const response = await fetch('/api/orders', {
@@ -101,5 +107,5 @@
 
         window.onload = fetchOrders; // Fetch orders on page load
     </script>
-</body>
+    </body>
 </html>

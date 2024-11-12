@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Your Cart</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Your Cart</h2>
-        <div id="cartList" class="row"></div>
-        <div id="cartTotal" class="my-3"></div>
-        <button onclick="proceedToCheckout()" class="btn btn-success">Proceed to Checkout</button>
-    </div>
+    <head>
+        <title>Your Cart</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>Your Cart</h2>
+            <div id="cartList" class="row"></div>
+            <div id="cartTotal" class="my-3"></div>
+            <button onclick="proceedToCheckout()"
+                class="btn btn-success">Proceed to Checkout</button>
+        </div>
 
-    <script>
+        <!-- Back to Dashboard Button -->
+        <div class="text-center">
+            <a href="dashboard.html" class="btn btn-secondary">Back to
+                Dashboard</a>
+        </div>
+
+        <script>
         function getCookie(name) {
             const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
             return match ? match[2] : null;
@@ -123,5 +131,5 @@
 
         window.onload = fetchCart;
     </script>
-</body>
+    </body>
 </html>
