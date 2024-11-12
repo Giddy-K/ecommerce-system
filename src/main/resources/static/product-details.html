@@ -6,47 +6,163 @@
         <title>Product Details</title>
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
         <style>
-        /* Styling for star rating */
-        .star {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #ddd; /* Default color for unselected stars */
-        }
-        .star.selected {
-            color: #ffc107; /* Yellow color for selected stars */
-        }
+            /* Global Styles */
+            body {
+                font-family: 'Roboto', sans-serif;
+                background-color: #f8f9fa;
+                color: #333;
+            }
 
-        /* Style for blurred comments */
-        .comment-blurred {
-            color: #aaa;
-            filter: blur(3px);
-            cursor: pointer;
-        }
+            h2, h3 {
+                color: #333;
+            }
 
-        /* Style for showing the full comment */
-        .comment-visible {
-            filter: none;
-        }
-    </style>
+            h4 {
+                font-size: 1.2rem;
+                color: #555;
+            }
+
+            /* Styling for the Product Details */
+            .product-details-container {
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 30px;
+                margin-top: 30px;
+            }
+
+            .product-details-container h2 {
+                font-size: 2rem;
+                font-weight: 600;
+                margin-bottom: 20px;
+            }
+
+            .product-details-container p {
+                font-size: 1.1rem;
+            }
+
+            .product-image {
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            /* Styling for star rating */
+            .star {
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #ddd; /* Default color for unselected stars */
+                transition: color 0.2s ease;
+            }
+            .star.selected {
+                color: #ffc107; /* Yellow color for selected stars */
+            }
+
+            /* Rating Section Styling */
+            .rating-section {
+                background-color: #f0f0f0;
+                border-radius: 10px;
+                padding: 20px;
+                margin-top: 20px;
+                display: none;
+            }
+
+            .rating-section h4 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .rating-section .btn-custom {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                font-size: 1rem;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+
+            .rating-section .btn-custom:hover {
+                background-color: #218838;
+            }
+
+            /* Ratings List Styling */
+            .ratings-section {
+                margin-top: 30px;
+            }
+
+            .ratings-section ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            .ratings-section li {
+                border-bottom: 1px solid #ddd;
+                padding: 10px 0;
+                margin-bottom: 10px;
+            }
+
+            .ratings-section li:last-child {
+                border-bottom: none;
+            }
+
+            .ratings-section .comment-blurred {
+                color: #aaa;
+                filter: blur(3px);
+                cursor: pointer;
+                transition: filter 0.2s ease;
+            }
+
+            .ratings-section .comment-visible {
+                filter: none;
+                color: #555;
+            }
+
+            .btn-add-to-cart {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                font-size: 1.2rem;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-add-to-cart:hover {
+                background-color: #0056b3;
+            }
+
+            /* Mobile Responsiveness */
+            @media (max-width: 768px) {
+                .product-details-container {
+                    padding: 20px;
+                }
+
+                .product-image {
+                    max-width: 100%;
+                    height: auto;
+                }
+            }
+        </style>
     </head>
     <body>
-        <div class="container mt-5">
+        <div class="container mt-5 product-details-container">
             <h2>Product Details</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <img id="productImage" class="img-fluid"
-                        alt="Product Image">
+                    <img id="productImage" class="img-fluid product-image" alt="Product Image">
                 </div>
                 <div class="col-md-6">
                     <h3 id="productName"></h3>
                     <p id="productDescription"></p>
                     <p><strong>$<span id="productPrice"></span></strong></p>
-                    <button class="btn btn-primary" id="addToCartBtn">Add to
-                        Cart</button>
+                    <button class="btn-add-to-cart" id="addToCartBtn">Add to Cart</button>
 
-                    <!-- Rating Section -->
-                    <div class="mt-4">
+                    <!-- Rating Section (Hidden if already rated) -->
+                    <div id="ratingSection" class="rating-section">
                         <h4>Rate this Product</h4>
                         <div id="starRating">
                             <!-- Render stars here -->
@@ -56,14 +172,12 @@
                             <span class="star" data-value="4">★</span>
                             <span class="star" data-value="5">★</span>
                         </div>
-                        <textarea id="comment" class="form-control mt-2"
-                            placeholder="Leave a comment"></textarea>
-                        <button class="btn btn-success mt-2"
-                            id="submitRatingBtn">Submit Rating</button>
+                        <textarea id="comment" class="form-control mt-2" placeholder="Leave a comment"></textarea>
+                        <button class="btn-custom mt-2" id="submitRatingBtn">Submit Rating</button>
                     </div>
 
-                    <!-- Display Ratings -->
-                    <div id="ratingsSection" class="mt-4">
+                    <!-- Display Ratings and Edit Section -->
+                    <div id="ratingsSection" class="ratings-section">
                         <h4>Product Ratings</h4>
                         <div id="averageRating"></div>
                         <ul id="ratingsList" class="list-unstyled">
@@ -75,173 +189,147 @@
         </div>
 
         <script>
-// Helper function to retrieve a specific cookie by name
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-        // Add product to cart
-document.getElementById('addToCartBtn').addEventListener('click', async () => {
-    const token = localStorage.getItem('jwtToken'); // Retrieve token from localStorage
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
+            // Helper function to retrieve a specific cookie by name
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
 
-    console.log(token);
+            // Add product to cart
+            document.getElementById('addToCartBtn').addEventListener('click', async () => {
+                const token = localStorage.getItem('jwtToken'); // Retrieve token from localStorage
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
 
-    if (!token) {
-        alert('User not authenticated. Please log in.');
-        return;
-    }
+                if (!token) {
+                    alert('User not authenticated. Please log in.');
+                    return;
+                }
 
-    console.log(`Product ID: ${productId}`);
-    console.log(`Token: ${token}`);
+                const response = await fetch(`/api/users/add-to-cart`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ productId })
+                });
 
-    const response = await fetch(`/api/users/add-to-cart`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ productId })
-    });
-
-    if (response.ok) {
-        alert('Product added to cart!');
-        window.location.href = 'dashboard.html';
-    } else {
-        const errorData = await response.json();
-        alert(`Failed to add product to cart. ${errorData.message || errorData.error}`);
-    }
-});
-        let selectedRating = 0;
-
-        // Handle star rating selection
-        const stars = document.querySelectorAll('.star');
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.getAttribute('data-value'));
-                updateStarRatingDisplay(selectedRating);
+                if (response.ok) {
+                    alert('Product added to cart!');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to add product to cart. ${errorData.message || errorData.error}`);
+                }
             });
-        });
 
-        // Function to update star colors based on selected rating
-        function updateStarRatingDisplay(rating) {
+            let selectedRating = 0;
+
+            // Handle star rating selection
+            const stars = document.querySelectorAll('.star');
             stars.forEach(star => {
-                star.classList.toggle('selected', parseInt(star.getAttribute('data-value')) <= rating);
-            });
-        }
-
-        // Submit Rating
-        document.getElementById('submitRatingBtn').addEventListener('click', async () => {
-            const token = localStorage.getItem('jwtToken');
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            const comment = document.getElementById('comment').value;
-
-            if (!token) {
-                alert('User not authenticated. Please log in.');
-                return;
-            }
-
-            if (selectedRating === 0) {
-                alert('Please select a rating.');
-                return;
-            }
-
-            const response = await fetch('/api/products/rate-product', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id: productId,
-                    score: selectedRating,
-                    comment: comment
-                })
+                star.addEventListener('click', () => {
+                    selectedRating = parseInt(star.getAttribute('data-value'));
+                    updateStarRatingDisplay(selectedRating);
+                });
             });
 
-            if (response.ok) {
-                alert('Thank you for your rating!');
-                document.getElementById('comment').value = ''; // Clear comment
-                updateStarRatingDisplay(0); // Reset star rating
-                selectedRating = 0;
-                window.location.reload();
-            } else {
-                const errorData = await response.json();
-                alert(`Failed to submit rating. ${errorData.message || errorData.error}`);
-            }
-        });
-
-        // Load product details on page load
-        async function fetchProductDetails() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            const response = await fetch(`/api/products/${productId}`);
-            if (response.ok) {
-                const product = await response.json();
-                document.getElementById('productImage').src = product.imageUrl;
-                document.getElementById('productName').textContent = product.name;
-                document.getElementById('productDescription').textContent = product.description;
-                document.getElementById('productPrice').textContent = product.price;
-            }
-        }
-
-        // Load product ratings
-        async function fetchProductRatings() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            const response = await fetch(`/api/products/${productId}/ratings`);
-            if (response.ok) {
-                const data = await response.json();
-                const averageRating = data.averageRating;
-                const ratings = data.ratings;
-
-                // Display average rating
-                document.getElementById('averageRating').textContent = `Average Rating: ${averageRating.toFixed(1)}/5`;
-
-                // Display individual ratings
-                const ratingsList = document.getElementById('ratingsList');
-                ratingsList.innerHTML = ''; // Clear previous ratings
-
-                ratings.forEach((rating, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('mb-2');
-
-                    // Create star ratings for each user
-                    let starsHtml = '';
-                    for (let i = 1; i <= 5; i++) {
-                        starsHtml += `<span class="star ${i <= rating.score ? 'selected' : ''}">★</span>`;
-                    }
-
-                    // Create the comment section with first comment visible and others blurred
-                    let commentHtml = rating.comment;
-                    if (index > 0) {
-                        commentHtml = `<span class="comment-blurred" onclick="revealComment(this)">${rating.comment}</span>`;
-                    }
-
-                    listItem.innerHTML = `
-                        <div>${starsHtml}</div>
-                        <p><strong>${rating.user.name}</strong> (${rating.user.email})</p>
-                        <p>${commentHtml}</p>
-                    `;
-                    ratingsList.appendChild(listItem);
+            // Function to update star colors based on selected rating
+            function updateStarRatingDisplay(rating) {
+                stars.forEach(star => {
+                    star.classList.toggle('selected', parseInt(star.getAttribute('data-value')) <= rating);
                 });
             }
-        }
 
-        // Reveal the comment when clicked
-        function revealComment(commentElement) {
-            commentElement.classList.remove('comment-blurred');
-            commentElement.classList.add('comment-visible');
-        }
+            // Submit Rating
+            document.getElementById('submitRatingBtn').addEventListener('click', async () => {
+                const token = localStorage.getItem('jwtToken');
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                const comment = document.getElementById('comment').value;
 
-        // Load product details and ratings on page load
-        window.onload = function() {
-            fetchProductDetails();
-            fetchProductRatings();
-        };
-    </script>
+                if (!token) {
+                    alert('User not authenticated. Please log in.');
+                    return;
+                }
+
+                if (selectedRating === 0) {
+                    alert('Please select a rating.');
+                    return;
+                }
+
+                const response = await fetch('/api/products/rate-product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        id: productId,
+                        score: selectedRating,
+                        comment: comment
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Thank you for your rating!');
+                    document.getElementById('comment').value = ''; // Clear comment
+                    updateStarRatingDisplay(0); // Reset star rating
+                    selectedRating = 0;
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to submit rating. ${errorData.message || errorData.error}`);
+                }
+            });
+
+            // Fetch Product Details on Load
+            window.onload = async () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                if (!productId) {
+                    alert('Product not found.');
+                    return;
+                }
+
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('productImage').src = product.imageUrl;
+                    document.getElementById('productName').textContent = product.name;
+                    document.getElementById('productDescription').textContent = product.description;
+                    document.getElementById('productPrice').textContent = product.price;
+                    document.getElementById('ratingSection').style.display = 'block'; // Show rating section
+                    loadRatings(productId);
+                } else {
+                    alert('Product not found.');
+                }
+            };
+
+            // Load Ratings for the Product
+            async function loadRatings(productId) {
+                const response = await fetch(`/api/products/${productId}/ratings`);
+                const data = await response.json();
+
+                if (data.ratings.length > 0) {
+                    const averageRating = data.averageRating;
+                    document.getElementById('averageRating').textContent = `Overall Rating: ${averageRating} ★'s`;
+
+                    const ratingsList = document.getElementById('ratingsList');
+                    data.ratings.forEach(rating => {
+                        const ratingItem = document.createElement('li');
+                        ratingItem.innerHTML = `
+                            <div>
+                                <strong>Rating: ${rating.score} ★'s</strong><br>
+                                <em>${rating.comment}</em>
+                            </div>`;
+                        ratingsList.appendChild(ratingItem);
+                    });
+                }
+            }
+        </script>
     </body>
 </html>
