@@ -13,7 +13,17 @@
     </div>
 
     <script>
-        // Fetch order details
+        function getOrderStatus(statusCode) {
+            switch (statusCode) {
+                case 0: return 'Pending';
+                case 1: return 'Processing';
+                case 2: return 'Shipped';
+                case 3: return 'Delivered';
+                case 4: return 'Cancelled';
+                default: return 'Unknown';
+            }
+        }
+        
         async function fetchOrderDetails() {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('id');
@@ -22,12 +32,11 @@
                 const order = await response.json();
                 const orderDetailsDiv = document.getElementById('orderDetails');
                 
-                // Check if orderItems exists and is an array
                 if (Array.isArray(order.orderItems)) {
                     orderDetailsDiv.innerHTML = `
                         <h3>Order ID: ${order.id}</h3>
                         <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> ${order.status}</p>
+                        <p><strong>Status:</strong> ${getOrderStatus(order.status)}</p>
                         <h4>Order Items</h4>
                         <ul>
                             ${order.orderItems.map(item => `
@@ -37,17 +46,15 @@
                         <p><strong>Total:</strong> $${order.totalAmount}</p>
                     `;
                 } else {
-                    // If orderItems is not an array, display an error message
                     orderDetailsDiv.innerHTML = `
                         <h3>Order ID: ${order.id}</h3>
                         <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> ${order.status}</p>
+                        <p><strong>Status:</strong> ${getOrderStatus(order.status)}</p>
                         <p>Order Items: Not available.</p>
                         <p><strong>Total:</strong> $${order.totalAmount}</p>
                     `;
                 }
             } else {
-                // Handle error when response is not OK
                 document.getElementById('orderDetails').innerHTML = `<p>Failed to load order details.</p>`;
             }
         }

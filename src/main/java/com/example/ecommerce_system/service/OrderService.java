@@ -9,6 +9,8 @@ import com.example.ecommerce_system.repository.OrderRepository;
 import com.example.ecommerce_system.repository.ProductRepository;
 import com.example.ecommerce_system.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,32 +30,48 @@ public class OrderService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public Order placeOrder(User user, OrderRequest orderRequest) {
-        Order order = new Order();
-        order.setUser(user);
-
-        List<OrderItem> items = orderRequest.getOrderItems().stream()
+        try {
+            System.out.println("Placing order for user: " + user.getId());
+    
+            Order order = new Order();
+            order.setUser(user);
+    
+            List<OrderItem> items = orderRequest.getOrderItems().stream()
                 .map(itemRequest -> {
-                    Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
-                    if (product != null) {
-                        OrderItem orderItem = new OrderItem();
-                        orderItem.setProduct(product);
-                        orderItem.setQuantity(itemRequest.getQuantity());
-                        orderItem.setPrice(product.getPrice() * itemRequest.getQuantity()); // Calculate price
-                        orderItem.setOrder(order); // Link back to order
-                        return orderItem;
+                    Optional<Product> productOpt = productRepository.findById(itemRequest.getProductId());
+                    if (productOpt.isEmpty()) {
+                        throw new RuntimeException("Product not found for ID: " + itemRequest.getProductId());
                     }
-                    return null;
+    
+                    Product product = productOpt.get();
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setProduct(product);
+                    orderItem.setQuantity(itemRequest.getQuantity());
+                    orderItem.setPrice(product.getPrice() * itemRequest.getQuantity());
+                    orderItem.setOrder(order);
+                    return orderItem;
                 })
-                .filter(item -> item != null) // Ensure no null items
                 .collect(Collectors.toList());
-
-        order.setOrderItems(items);
-        order.setTotalAmount(items.stream().mapToDouble(OrderItem::getPrice).sum()); // Calculate total amount
-        // Clear user's cart after placing the order
-        user.setCart(Map.of()); // Set an empty map to clear the cart
-        userRepository.save(user); // Save updated user to the database
-        return orderRepository.save(order);
+    
+            if (items.isEmpty()) {
+                throw new IllegalArgumentException("Order contains no valid items.");
+            }
+    
+            order.setOrderItems(items);
+            order.setTotalAmount(items.stream().mapToDouble(OrderItem::getPrice).sum());
+            user.setCart(Map.of());  // Assuming cart is cleared after order
+    
+            // Save the user and order
+            userRepository.save(user);
+            return orderRepository.save(order);
+    
+        } catch (Exception e) {
+            System.err.println("Error placing order: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("An error occurred while placing the order.");
+        }
     }
 
     public List<Order> getUserOrders(Long userId) {
